@@ -36,6 +36,9 @@ public class Product {
     @Column(name = "base_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal basePrice;
 
+    @Column(name = "price", nullable = false, precision = 18, scale = 2)
+    private BigDecimal price;
+
     @Builder.Default
     @Column(name = "discount_rate", precision = 5, scale = 2)
     private BigDecimal discountRate = BigDecimal.ZERO;

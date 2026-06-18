@@ -224,6 +224,7 @@ CREATE TABLE `product`  (
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
   `attribute` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
   `base_price` decimal(18, 2) NOT NULL,
+  `price` decimal(18, 2) NOT NULL,
   `discount_rate` decimal(5, 2) NULL DEFAULT 0.00,
   `gender` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `product_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,

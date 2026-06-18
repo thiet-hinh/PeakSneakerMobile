@@ -43,6 +43,10 @@ public class ProductVariant {
     @Builder.Default
     private List<Image> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "productVariant")
+    @Builder.Default
+    private List<OrderItem> orderItems = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
