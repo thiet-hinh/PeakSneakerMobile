@@ -44,7 +44,7 @@ public class Payment {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_payment_order"))
-    private Orders order;
+    private Order order;
 
     @PrePersist
     protected void onCreate() {

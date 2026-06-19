@@ -7,11 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
-    Page<Review> findByProductId(Integer productId, Pageable pageable);
+    List<Review> findByProductId(Integer productId);
 
     Optional<Review> findByUserIdAndProductId(Integer userId, Integer productId);
 

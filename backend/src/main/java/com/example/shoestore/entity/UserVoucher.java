@@ -21,7 +21,7 @@ public class UserVoucher {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_voucher_user"))
-    private Users user;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "voucher_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_voucher_voucher"))
@@ -29,7 +29,7 @@ public class UserVoucher {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "fk_user_voucher_order"))
-    private Orders order;
+    private Order order;
 
     @Builder.Default
     @Column(name = "is_used", nullable = false)

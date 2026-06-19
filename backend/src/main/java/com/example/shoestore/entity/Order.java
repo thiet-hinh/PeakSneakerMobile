@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString(exclude = {"user", "voucher", "orderItems", "payment"})
-public class Orders {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,7 +65,7 @@ public class Orders {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_user"))
-    private Users user;
+    private User user;
 
     // Lưu ý: schema gốc chỉ có INDEX cho voucher_id, không có ràng buộc FK thực sự.
     // Dùng insertable=false/updatable=false trên quan hệ, và field voucherId riêng để ghi giá trị.

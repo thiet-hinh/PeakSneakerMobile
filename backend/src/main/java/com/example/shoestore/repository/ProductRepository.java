@@ -15,21 +15,18 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
-    Page<Product> findByIsDeletedFalse(Pageable pageable);
 
-    Page<Product> findByCategoryIdAndIsDeletedFalse(Integer categoryId, Pageable pageable);
-
-    Page<Product> findByBrandIdAndIsDeletedFalse(Integer brandId, Pageable pageable);
+    List<Product> findByBrandIdAndIsDeletedFalse(Integer brandId);
 
     List<Product> findByIsFeaturedTrueAndIsDeletedFalse();
 
-    Page<Product> findByGenderAndIsDeletedFalse(Gender gender, Pageable pageable);
+    List<Product> findByGenderAndIsDeletedFalse(Gender gender);
 
 
     //tìm bằng thanh tìm kiếm theo tên
     @Query("SELECT p FROM Product p WHERE p.isDeleted = false " +
            "AND LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    Page<Product> searchByName(@Param("keyword") String keyword, Pageable pageable);
+    List<Product> searchByName(@Param("keyword") String keyword);
 
     //tìm bằng bộ lọc
     @Query("""
