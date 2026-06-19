@@ -29,6 +29,7 @@ dependencies {
 	testAnnotationProcessor("org.projectlombok:lombok")
 
     implementation("com.cloudinary:cloudinary-http44:1.39.0")
+    implementation("com.google.firebase:firebase-admin:9.4.2")
 
 }
 

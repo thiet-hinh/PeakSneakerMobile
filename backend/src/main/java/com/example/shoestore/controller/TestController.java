@@ -1,5 +1,6 @@
 package com.example.shoestore.controller;
 
+import com.google.firebase.FirebaseApp;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     @GetMapping("/")
-    public String root() {
-        return "OK";
+    public String test() {
+        return FirebaseApp.getInstance().getName();
     }
 }
