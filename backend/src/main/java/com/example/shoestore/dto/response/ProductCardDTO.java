@@ -12,7 +12,7 @@ public class ProductCardDTO {
 
     private Integer id;
     private String productName;
-    private String imageName;
+    private String imageUrl;
     private String brandName;
     private BigDecimal basePrice;
     private BigDecimal discountRate;

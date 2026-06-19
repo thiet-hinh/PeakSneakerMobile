@@ -27,6 +27,9 @@ dependencies {
 	testCompileOnly("org.projectlombok:lombok")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testAnnotationProcessor("org.projectlombok:lombok")
+
+    implementation("com.cloudinary:cloudinary-http44:1.39.0")
+
 }
 
 tasks.withType<Test> {

@@ -5,6 +5,7 @@ import com.example.shoestore.dto.response.ProductCardDTO;
 import com.example.shoestore.entity.Product;
 import com.example.shoestore.enums.Gender;
 import com.example.shoestore.repository.ProductRepository;
+import com.example.shoestore.thirdparty.cloudinary.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +20,16 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CloudinaryService cloudinaryService;
 
     public List<ProductCardDTO> getAllCardProduct(Gender gender,Integer brandId, BigDecimal minPrice,BigDecimal maxPrice,String size){
-       return productRepository.findProductCards( gender, brandId,  minPrice, maxPrice, size);
+       List<ProductCardDTO> cards= productRepository.findProductCards( gender, brandId,  minPrice, maxPrice, size);
+        cards.forEach(card -> {
+            if (card.getImageUrl() != null) {
+                card.setImageUrl(cloudinaryService.createImageUrl(card.getImageUrl()));
+            }
+        });
+        return cards;
     }
 
 
