@@ -75,13 +75,4 @@ public class ReviewService {
         return reviewRepository.save(existing);
     }
 
-    @Transactional
-    public void deleteById(Integer id) {
-
-        if (!reviewRepository.existsById(id)) {
-            throw new RuntimeException("Review not found with id: " + id);
-        }
-
-        reviewRepository.deleteById(id);
-    }
 }

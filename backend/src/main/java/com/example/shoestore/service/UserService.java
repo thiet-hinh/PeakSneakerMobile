@@ -17,6 +17,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
 
+    public User findById(Integer id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
     public User findByFirebaseId(String uid) {
         return userRepository.findByFirebaseUid(uid)
                 .orElseThrow(() -> new RuntimeException("User not found with uid: " + uid));

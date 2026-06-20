@@ -74,4 +74,21 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
+    public Payment markAsPaid(Integer orderId, String transactionId) {
+
+        Payment payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        payment.setPaymentStatus(PaymentStatus.PAID);
+        payment.setTransactionId(transactionId);
+        payment.setPaidAt(LocalDateTime.now());
+        return paymentRepository.save(payment);
+    }
+
+    public Payment markAsFailed(Integer orderId) {
+        Payment payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        payment.setPaymentStatus(PaymentStatus.FAILED);
+        return paymentRepository.save(payment);
+    }
+
 }
