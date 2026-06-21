@@ -1,9 +1,10 @@
-package com.example.shoeshop
+package com.example.shoeshop.activity
 
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import com.example.shoeshop.AuthRepository
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
