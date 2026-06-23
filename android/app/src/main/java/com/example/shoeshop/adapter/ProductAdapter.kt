@@ -1,0 +1,51 @@
+package com.example.shoeshop.adapter
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.shoeshop.R
+import com.example.shoeshop.model.Product // Import đúng model Product của bạn
+
+class ProductAdapter(
+    private val productList: List<Product>,
+    private val isGrid: Boolean
+) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
+
+    class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvBrand: TextView = view.findViewById(R.id.tvBrand)
+        val tvName: TextView = view.findViewById(R.id.tvName)
+        val tvRating: TextView = view.findViewById(R.id.tvRating)
+        val tvSold: TextView = view.findViewById(R.id.tvSold)
+        val tvPrice: TextView = view.findViewById(R.id.tvPrice)
+        val imgProduct: ImageView = view.findViewById(R.id.imgProduct)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
+        // Tự động chọn Layout Grid hay Layout Ngang tùy thuộc vào biến isGrid
+        val layout = if (isGrid) R.layout.item_product_grid else R.layout.item_product_featured
+        val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
+        return ProductViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
+        val product = productList[position]
+
+        // Đổ dữ liệu từ Model Product vào các View tương ứng
+        holder.tvBrand.text = product.brandName
+        holder.tvName.text = product.name
+        holder.tvRating.text = product.rating
+        holder.tvSold.text = product.sold
+        holder.tvPrice.text = product.price
+
+        if (product.imageResId != 0) {
+            holder.imgProduct.setImageResource(product.imageResId)
+        } else {
+            holder.imgProduct.setImageResource(R.drawable.banner_placeholder)
+        }
+    }
+
+    override fun getItemCount() = productList.size
+}
