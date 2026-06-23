@@ -34,6 +34,18 @@
             android:exported="true"
             android:theme="@style/Theme.ShoeShop">
         </activity>
+
+        <activity
+            android:name=".activity.RegisterActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoeShop">
+        </activity>
+
+        <activity
+            android:name=".activity.ForgotPasswordActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoeShop">
+        </activity>
     </application>
 
 </manifest>

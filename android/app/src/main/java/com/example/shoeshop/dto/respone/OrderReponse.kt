@@ -1,4 +1,4 @@
-package dto.respone
+package com.example.shoeshop.dto.respone
 
 import com.example.shoeshop.enums.OrderStatus
 

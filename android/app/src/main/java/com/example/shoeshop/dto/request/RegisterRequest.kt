@@ -1,4 +1,4 @@
-package com.example.shoeshop.dto
+package com.example.shoeshop.dto.request
 
 data class RegisterRequest(
     val firebaseUid: String,

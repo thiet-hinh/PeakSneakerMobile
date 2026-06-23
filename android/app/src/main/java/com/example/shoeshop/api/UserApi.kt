@@ -1,6 +1,6 @@
 package com.example.shoeshop.api
 
-import com.example.shoeshop.dto.RegisterRequest
+import com.example.shoeshop.dto.request.RegisterRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
