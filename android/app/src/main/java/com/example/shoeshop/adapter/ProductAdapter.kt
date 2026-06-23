@@ -7,8 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoeshop.R
-import com.example.shoeshop.model.Product // Import đúng model Product của bạn
-
+import com.example.shoeshop.model.Product 
 class ProductAdapter(
     private val productList: List<Product>,
     private val isGrid: Boolean
@@ -24,7 +23,7 @@ class ProductAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        // Tự động chọn Layout Grid hay Layout Ngang tùy thuộc vào biến isGrid
+      
         val layout = if (isGrid) R.layout.item_product_grid else R.layout.item_product_featured
         val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
         return ProductViewHolder(view)
@@ -33,7 +32,7 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = productList[position]
 
-        // Đổ dữ liệu từ Model Product vào các View tương ứng
+       
         holder.tvBrand.text = product.brandName
         holder.tvName.text = product.name
         holder.tvRating.text = product.rating
