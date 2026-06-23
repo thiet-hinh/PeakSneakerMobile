@@ -7,5 +7,7 @@ data class Product(
     val rating: String,
     val sold: String,
     val price: String,
-    val imageResId: Int
+    val imageResId: Int,
+    val originalPrice: String = "",
+    val discount: String = ""
 )

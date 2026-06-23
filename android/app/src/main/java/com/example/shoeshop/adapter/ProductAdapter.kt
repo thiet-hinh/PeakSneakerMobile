@@ -1,5 +1,6 @@
 package com.example.shoeshop.adapter
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,8 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoeshop.R
-import com.example.shoeshop.model.Product // Import đúng model Product của bạn
-
+import com.example.shoeshop.model.Product
 class ProductAdapter(
     private val productList: List<Product>,
     private val isGrid: Boolean
@@ -21,10 +21,11 @@ class ProductAdapter(
         val tvSold: TextView = view.findViewById(R.id.tvSold)
         val tvPrice: TextView = view.findViewById(R.id.tvPrice)
         val imgProduct: ImageView = view.findViewById(R.id.imgProduct)
+
+        val tvOriginalPrice: TextView? = view.findViewById(R.id.tvOriginalPrice)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        // Tự động chọn Layout Grid hay Layout Ngang tùy thuộc vào biến isGrid
         val layout = if (isGrid) R.layout.item_product_grid else R.layout.item_product_featured
         val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
         return ProductViewHolder(view)
@@ -33,12 +34,16 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = productList[position]
 
-        // Đổ dữ liệu từ Model Product vào các View tương ứng
         holder.tvBrand.text = product.brandName
         holder.tvName.text = product.name
         holder.tvRating.text = product.rating
         holder.tvSold.text = product.sold
         holder.tvPrice.text = product.price
+
+        holder.tvOriginalPrice?.let { tvOriginal ->
+            tvOriginal.text = product.originalPrice
+            tvOriginal.paintFlags = tvOriginal.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        }
 
         if (product.imageResId != 0) {
             holder.imgProduct.setImageResource(product.imageResId)
