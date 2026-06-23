@@ -28,12 +28,12 @@ class SplashActivity : AppCompatActivity() {
 
             var currentUser : String? = null
 
-            if (currentUser!= null) {
+            if (currentUser== null) {
                 startActivity(Intent(this, MainActivity::class.java))
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
             }
             finish()
-        }, 5000)
+        }, 2000)
     }
 }
