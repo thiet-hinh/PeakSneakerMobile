@@ -141,11 +141,12 @@ class StoreFragment : Fragment() {
 
         val chipBrandNike = bottomSheetView.findViewById<TextView>(R.id.chipBrandNike)
         val chipBrandAdidas = bottomSheetView.findViewById<TextView>(R.id.chipBrandAdidas)
-        val chipBrandJordan = bottomSheetView.findViewById<TextView>(R.id.chipBrandJordan)
+        val chipBrandVans = bottomSheetView.findViewById<TextView>(R.id.chipBrandVans)
+        val chipBrandConverse = bottomSheetView.findViewById<TextView>(R.id.chipBrandConverse)
         val chipBrandPuma = bottomSheetView.findViewById<TextView>(R.id.chipBrandPuma)
 
         fun updateBrandUI() {
-            val brandChips = listOf(chipBrandNike, chipBrandAdidas, chipBrandJordan, chipBrandPuma)
+            val brandChips = listOf(chipBrandNike, chipBrandAdidas, chipBrandVans, chipBrandConverse, chipBrandPuma)
             brandChips.forEachIndexed { index, chip ->
                 if (index + 1 == selectedBrand) {
                     chip.setBackgroundResource(R.drawable.bg_chip_selected)
@@ -222,8 +223,9 @@ class StoreFragment : Fragment() {
 
         chipBrandNike.setOnClickListener { selectedBrand = 1; updateBrandUI() }
         chipBrandAdidas.setOnClickListener { selectedBrand = 2; updateBrandUI() }
-        chipBrandJordan.setOnClickListener { selectedBrand = 3; updateBrandUI() }
-        chipBrandPuma.setOnClickListener { selectedBrand = 4; updateBrandUI() }
+        chipBrandVans.setOnClickListener { selectedBrand = 3; updateBrandUI() }
+        chipBrandConverse.setOnClickListener { selectedBrand = 4; updateBrandUI() }
+        chipBrandPuma.setOnClickListener { selectedBrand = 5; updateBrandUI() }
 
         chipPriceUnder2m.setOnClickListener { selectedPriceRange = 1; updatePriceRangeUI() }
         chipPrice2to4m.setOnClickListener { selectedPriceRange = 2; updatePriceRangeUI() }
@@ -261,8 +263,9 @@ class StoreFragment : Fragment() {
             val selectedBrandName = when(selectedBrand) {
                 1 -> "NIKE"
                 2 -> "ADIDAS"
-                3 -> "JORDAN"
-                4 -> "PUMA"
+                3 -> "VANS"
+                4 -> "CONVERSE"
+                5 -> "PUMA"
                 else -> ""
             }
 
