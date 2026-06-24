@@ -1,5 +1,6 @@
 package com.example.shoeshop.adapter
 
+import android.content.Intent
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoeshop.R
+import com.example.shoeshop.activity.ProductDetailActivity
 import com.example.shoeshop.model.Product
 class ProductAdapter(
     private val productList: List<Product>,
@@ -44,6 +46,12 @@ class ProductAdapter(
             tvOriginal.text = product.originalPrice
             tvOriginal.paintFlags = tvOriginal.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
         }
+
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, ProductDetailActivity::class.java)
+            holder.itemView.context.startActivity(intent)
+        }
+
 
         if (product.imageResId != 0) {
             holder.imgProduct.setImageResource(product.imageResId)

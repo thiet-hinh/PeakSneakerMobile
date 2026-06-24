@@ -46,6 +46,8 @@
             android:exported="true"
             android:theme="@style/Theme.ShoeShop">
         </activity>
+        <activity android:name=".activity.ProductDetailActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FCF8F8"
+    android:fitsSystemWindows="true">
+    <!-- TOP APP BAR -->
+    <LinearLayout
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:elevation="2dp"
+        android:background="#FCF8F8">
+
+        <ImageView
+            android:id="@+id/btnBack" android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#1C1B1B"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Chi tiết sản phẩm"
+            android:textColor="#1C1B1B"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Spacer để căn giữa title -->
+        <View android:layout_width="24dp" android:layout_height="24dp"/>
+    </LinearLayout>
+
+    <!-- MAIN SCROLLABLE CONTENT -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/topAppBar"
+        android:layout_above="@id/bottomActionBar"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 1. Hero Image Slider (Giả lập bằng FrameLayout) -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:background="#F1EDEC">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="32dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/banner_placeholder" /> <!-- Thay bằng ảnh giày của bạn -->
+
+                <!-- Pagination Dots -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_dark" android:layout_marginEnd="4dp"/>
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_light" android:layout_marginEnd="4dp"/>
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_light"/>
+                </LinearLayout>
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- 2. Product Info -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NIKE"
+                    android:textColor="#444748"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nike Air Max Zoom Pegasus 38"
+                    android:textColor="#1C1B1B"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"/>
+
+                <!-- Ratings -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+                    <!-- Giả lập 5 sao -->
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star_half" app:tint="#F59E0B"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="4.8"
+                        android:textSize="12sp"
+                        android:textColor="#1C1B1B"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="(128 đánh giá)"
+                        android:textSize="12sp"
+                        android:textColor="#747878"/>
+                </LinearLayout>
+
+                <!-- Prices -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:layout_marginTop="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3.290.000đ"
+                        android:textColor="#1C1B1B"
+                        android:textSize="28sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="4.500.000đ"
+                        android:textColor="#747878"
+                        android:textSize="14sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_discount_badge"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:text="-27%"
+                        android:textColor="#93000A"
+                        android:textSize="10sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- 3. Colors -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Màu sắc"
+                    android:textColor="#1C1B1B"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+                    <!-- Giả lập các ô màu -->
+                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_red" android:layout_marginEnd="16dp"/>
+                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_black" android:layout_marginEnd="16dp"/>
+                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_blue" android:layout_marginEnd="16dp"/>
+                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_gray"/>
+                </LinearLayout>
+
+                <!-- 4. Sizes -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kích cỡ (EU)"
+                        android:textColor="#1C1B1B"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:text="Bảng size"
+                        android:textColor="#396477"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:drawableStartCompat="@drawable/ic_straighten"
+                        android:drawablePadding="4dp"/>
+                </RelativeLayout>
+
+                <!-- Size Grid -->
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:columnCount="4">
+
+                    <!-- Row 1 -->
+                    <TextView android:text="38" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
+                    <TextView android:text="39" style="@style/SizeChipStyle" android:background="@drawable/bg_size_selected"/>
+                    <TextView android:text="40" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
+                    <TextView android:text="41" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
+
+                    <!-- Row 2 -->
+                    <TextView android:text="42" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
+                    <TextView android:text="43" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
+                    <TextView android:text="44" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected" android:alpha="0.4"/>
+                    <TextView android:text="45" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
+                </GridLayout>
+
+                <!-- 5. Description -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:text="Mô tả sản phẩm"
+                    android:textColor="#1C1B1B"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="Nike Air Max Zoom Pegasus 38 tiếp tục mang đến sự thoải mái tối ưu với đệm Zoom Air phản hồi cực tốt. Thiết kế thân giày bằng lưới thoáng khí giúp đôi chân luôn khô ráo trong suốt quá trình tập luyện cường độ cao. Phong cách thể thao hiện đại, dễ dàng phối hợp với nhiều trang phục khác nhau."
+                    android:textColor="#444748"
+                    android:textSize="14sp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E5E2E1"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="24dp"/>
+
+                <!-- 6. Specifications -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thông số kỹ thuật"
+                    android:textColor="#1C1B1B"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- Spec Items -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="8dp">
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Kiểu dáng" android:textColor="#747878"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cổ thấp (Low-top)" android:textColor="#1C1B1B" android:textStyle="bold"/>
+                </LinearLayout>
+                <!-- Thêm các Spec khác tương tự -->
+
+                <!-- 7. Reviews -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginBottom="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Đánh giá (128)"
+                        android:textColor="#1C1B1B"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:text="Xem tất cả"
+                        android:textColor="#396477"
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
+                </RelativeLayout>
+
+                <!-- Review Card 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_review_card"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp">
+
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <!-- Avatar giả lập -->
+                        <TextView android:id="@+id/avt1" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_circle_blue_light" android:text="T" android:gravity="center" android:textColor="#1E4C5F" android:textStyle="bold" android:layout_marginEnd="12dp"/>
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/avt1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trần Minh Quân" android:textColor="#1C1B1B" android:textStyle="bold" android:textSize="12sp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15/10/2023" android:textColor="#747878" android:textSize="10sp"/>
+                        </LinearLayout>
+                        <!-- Stars -->
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true">
+                            <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
+                            <!-- 4 sao nữa -->
+                        </LinearLayout>
+                    </RelativeLayout>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Giày đi rất êm, ôm chân và thoáng khí. Giao hàng nhanh, đóng gói cẩn thận. Rất đáng tiền!" android:textColor="#444748" android:textSize="14sp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- BOTTOM ACTION BAR (Cố định ở dưới cùng) -->
+    <LinearLayout
+        android:id="@+id/bottomActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#E6FCF8F8"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_btn_buy_now"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_shopping_cart"
+                app:tint="#1C1B1B"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thêm ngay để mua"
+                android:textColor="#1C1B1B"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

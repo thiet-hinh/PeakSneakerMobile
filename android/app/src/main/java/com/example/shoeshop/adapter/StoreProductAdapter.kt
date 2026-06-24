@@ -1,5 +1,6 @@
 package com.example.shoeshop.adapter
 
+import android.content.Intent
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoeshop.R
+import com.example.shoeshop.activity.ProductDetailActivity
 import com.example.shoeshop.model.Product
 
 class StoreProductAdapter(private val productList: List<Product>) :
@@ -46,7 +48,10 @@ class StoreProductAdapter(private val productList: List<Product>) :
         }
 
         holder.tvRatingSold.text = "${product.rating}   Đã bán ${product.sold}"
-
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, ProductDetailActivity::class.java)
+            holder.itemView.context.startActivity(intent)
+        }
         if (product.imageResId != 0) {
             holder.imgProduct.setImageResource(product.imageResId)
         } else {
