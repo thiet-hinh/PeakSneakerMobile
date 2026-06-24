@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FCF8F8"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/header"
+        layout="@layout/include_header_bar"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/bottomBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:padding="20dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="MẶC ĐỊNH"
+                android:textStyle="bold"
+                android:textSize="10sp"
+                android:textColor="@android:color/white"
+                android:background="#000000"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:layout_width="wrap_content"
+                android:padding="5dp"
+                android:layout_marginBottom="10dp"
+                android:layout_height="wrap_content"/>
+
+            <!-- Họ tên -->
+
+            <TextView
+                style="@style/LabelStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HỌ TÊN" />
+
+            <EditText
+                android:id="@+id/edtFullName"
+                style="@style/ProfileEditText"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:hint="Nhập họ tên" />
+
+            <TextView
+                style="@style/LabelStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SỐ ĐIỆN THOẠI" />
+
+            <EditText
+                android:id="@+id/edtPhone"
+                style="@style/ProfileEditText"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:inputType="phone"
+                android:hint="Nhập số điện thoại" />
+
+            <TextView
+                style="@style/LabelStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TỈNH / THÀNH PHỐ" />
+
+            <Spinner
+                android:id="@+id/spProvince"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@null"
+                android:background="@drawable/bg_spinner"
+                android:theme="@style/ThemeOverlay.AppCompat.Light"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                style="@style/LabelStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QUẬN / HUYỆN" />
+
+            <Spinner
+                android:id="@+id/spDistrict"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_spinner"
+                android:theme="@style/ThemeOverlay.AppCompat.Light"
+                android:backgroundTint="@null"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                style="@style/LabelStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PHƯỜNG / XÃ" />
+
+            <Spinner
+                android:id="@+id/spWard"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_spinner"
+                android:theme="@style/ThemeOverlay.AppCompat.Light"
+                android:backgroundTint="@null"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                style="@style/LabelStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ĐỊA CHỈ CHI TIẾT" />
+
+            <EditText
+                android:id="@+id/edtDetail"
+                style="@style/ProfileEditText"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:hint="Số nhà, tên đường..." />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="#FCF8F8"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Lưu thay đổi"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            app:backgroundTint="#1C1B1B"
+            app:cornerRadius="28dp"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
