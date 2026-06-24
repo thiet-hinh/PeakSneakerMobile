@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/layoutEmptySearch"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingHorizontal="40dp"
+    android:visibility="gone">
+
+    <FrameLayout
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_circle_light_gray">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_search_off"
+            app:tint="#747878" /> </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:gravity="center"
+        android:text="Rất tiếc, không tìm thấy sản phẩm"
+        android:textColor="#1C1B1B"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:gravity="center"
+        android:text="Hãy thử thay đổi từ khóa hoặc bộ lọc để tìm thấy đôi giày ưng ý nhé."
+        android:textColor="#444748"
+        android:textSize="14sp"
+        android:lineSpacingMultiplier="1.2" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnClearFilters"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:paddingHorizontal="32dp"
+        android:background="@drawable/bg_btn_black_pill"
+        android:text="Xóa tất cả bộ lọc"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:elevation="4dp" />
+
+</LinearLayout>
