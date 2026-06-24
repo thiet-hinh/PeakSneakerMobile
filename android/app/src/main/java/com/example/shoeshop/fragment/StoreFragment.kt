@@ -29,7 +29,6 @@ class StoreFragment : Fragment() {
     private lateinit var layoutEmptySearch: View
     private lateinit var etSearch: EditText
 
-    // Biến lưu trữ danh sách gốc tải từ server/hệ thống về
     private var masterProductList = listOf<Product>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -41,7 +40,6 @@ class StoreFragment : Fragment() {
         etSearch = view.findViewById(R.id.etSearch)
         layoutEmptySearch = view.findViewById(R.id.layoutEmptySearch)
 
-        // Bật trạng thái loading ban đầu
         shimmerLayout.startShimmer()
         shimmerLayout.visibility = View.VISIBLE
         rvStoreProducts.visibility = View.GONE
@@ -49,7 +47,6 @@ class StoreFragment : Fragment() {
 
         rvStoreProducts.layoutManager = GridLayoutManager(context, 2)
 
-        // Giả lập tải dữ liệu mất 2 giây
         Handler(Looper.getMainLooper()).postDelayed({
             masterProductList = listOf(
                Product(1, "NIKE", "Air Max Dawn SE", "4.9", "1.2k", "2.450.000đ", R.drawable.banner_placeholder, "3.150.000đ", "-22%"),
@@ -57,11 +54,9 @@ class StoreFragment : Fragment() {
               Product(3, "JORDAN", "Air Jordan 1 Low", "5.0", "620", "3.850.000đ", R.drawable.banner_placeholder, "3.850.000đ", ""),
               Product(4, "PUMA", "RS-X Efekt Futures", "4.7", "430", "2.100.000đ", R.drawable.banner_placeholder, "2.800.000đ", "-25%")
          )
-            // Hiển thị dữ liệu lên màn hình lần đầu
             updateProductListUI(masterProductList)
         }, 2000)
 
-        // Xử lý sự kiện khi gõ chữ vào ô tìm kiếm
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -70,12 +65,11 @@ class StoreFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // Xử lý sự kiện nút "Xóa tất cả bộ lọc" ở màn hình báo trống
         val btnClearFilters = layoutEmptySearch.findViewById<Button>(R.id.btnClearFilters)
         btnClearFilters.setOnClickListener {
-            etSearch.text?.clear() // Xóa text tìm kiếm
-            etSearch.clearFocus()  // Bỏ con trỏ nhấp nháy
-            filterProducts("")     // Đưa danh sách về ban đầu
+            etSearch.text?.clear()
+            etSearch.clearFocus()
+            filterProducts("")
         }
 
         btnFilter.setOnClickListener {
@@ -85,17 +79,12 @@ class StoreFragment : Fragment() {
         return view
     }
 
-    /**
-     * Hàm thực hiện lọc sản phẩm theo từ khóa (Tìm theo tên hoặc thương hiệu)
-     */
     private fun filterProducts(query: String) {
-        // Nếu dữ liệu chưa tải xong (Đang hiện shimmer), không làm gì cả
         if (shimmerLayout.visibility == View.VISIBLE) return
 
         if (query.isEmpty()) {
             updateProductListUI(masterProductList)
         } else {
-            // Lọc danh sách: Kiểm tra từ khóa trùng tên hoặc thương hiệu (Không phân biệt chữ hoa/thường)
             val filteredList = masterProductList.filter { product ->
                 product.name.contains(query, ignoreCase = true) ||
                         product.brandName.contains(query, ignoreCase = true)
@@ -104,19 +93,14 @@ class StoreFragment : Fragment() {
         }
     }
 
-    /**
-     * Hàm cập nhật trạng thái hiển thị giao diện tùy thuộc vào độ dài danh sách
-     */
     private fun updateProductListUI(productList: List<Product>) {
         shimmerLayout.stopShimmer()
         shimmerLayout.visibility = View.GONE
 
         if (productList.isEmpty()) {
-            // ❌ KHÔNG TÌM THẤY KẾT QUẢ: Hiện màn hình trống, ẩn danh sách
             rvStoreProducts.visibility = View.GONE
             layoutEmptySearch.visibility = View.VISIBLE
         } else {
-            //  TÌM THẤY SẢN PHẨM: Hiện danh sách, ẩn màn hình trống
             layoutEmptySearch.visibility = View.GONE
             rvStoreProducts.visibility = View.VISIBLE
             rvStoreProducts.adapter = StoreProductAdapter(productList)
@@ -133,6 +117,7 @@ class StoreFragment : Fragment() {
         val btnApply = bottomSheetView.findViewById<Button>(R.id.btnApply)
 
         var selectedGender = 1
+        var selectedBrand = 1
         var selectedPriceRange = 0
         var selectedSortOption = 0
         var selectedSize = 36
@@ -145,6 +130,24 @@ class StoreFragment : Fragment() {
             val genderChips = listOf(chipGenderMale, chipGenderFemale, chipGenderUnisex)
             genderChips.forEachIndexed { index, chip ->
                 if (index + 1 == selectedGender) {
+                    chip.setBackgroundResource(R.drawable.bg_chip_selected)
+                    chip.setTextColor(resources.getColor(R.color.white, null))
+                } else {
+                    chip.setBackgroundResource(R.drawable.bg_chip_unselected)
+                    chip.setTextColor(resources.getColor(R.color.black, null))
+                }
+            }
+        }
+
+        val chipBrandNike = bottomSheetView.findViewById<TextView>(R.id.chipBrandNike)
+        val chipBrandAdidas = bottomSheetView.findViewById<TextView>(R.id.chipBrandAdidas)
+        val chipBrandJordan = bottomSheetView.findViewById<TextView>(R.id.chipBrandJordan)
+        val chipBrandPuma = bottomSheetView.findViewById<TextView>(R.id.chipBrandPuma)
+
+        fun updateBrandUI() {
+            val brandChips = listOf(chipBrandNike, chipBrandAdidas, chipBrandJordan, chipBrandPuma)
+            brandChips.forEachIndexed { index, chip ->
+                if (index + 1 == selectedBrand) {
                     chip.setBackgroundResource(R.drawable.bg_chip_selected)
                     chip.setTextColor(resources.getColor(R.color.white, null))
                 } else {
@@ -217,6 +220,11 @@ class StoreFragment : Fragment() {
         chipGenderFemale.setOnClickListener { selectedGender = 2; updateGenderUI() }
         chipGenderUnisex.setOnClickListener { selectedGender = 3; updateGenderUI() }
 
+        chipBrandNike.setOnClickListener { selectedBrand = 1; updateBrandUI() }
+        chipBrandAdidas.setOnClickListener { selectedBrand = 2; updateBrandUI() }
+        chipBrandJordan.setOnClickListener { selectedBrand = 3; updateBrandUI() }
+        chipBrandPuma.setOnClickListener { selectedBrand = 4; updateBrandUI() }
+
         chipPriceUnder2m.setOnClickListener { selectedPriceRange = 1; updatePriceRangeUI() }
         chipPrice2to4m.setOnClickListener { selectedPriceRange = 2; updatePriceRangeUI() }
         chipPriceOver4m.setOnClickListener { selectedPriceRange = 3; updatePriceRangeUI() }
@@ -235,11 +243,13 @@ class StoreFragment : Fragment() {
 
         btnReset.setOnClickListener {
             selectedGender = 1
+            selectedBrand = 1
             selectedPriceRange = 0
             selectedSortOption = 0
             selectedSize = 36
 
             updateGenderUI()
+            updateBrandUI()
             updatePriceRangeUI()
             updateSortUI()
             updateSizeUI()
@@ -247,7 +257,16 @@ class StoreFragment : Fragment() {
 
         btnApply.setOnClickListener {
             bottomSheetDialog.dismiss()
-            // Có thể thêm logic kết hợp lọc thuộc tính ở đây nếu cần
+
+            val selectedBrandName = when(selectedBrand) {
+                1 -> "NIKE"
+                2 -> "ADIDAS"
+                3 -> "JORDAN"
+                4 -> "PUMA"
+                else -> ""
+            }
+
+            filterProducts(selectedBrandName)
         }
 
         bottomSheetDialog.show()
