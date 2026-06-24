@@ -13,7 +13,7 @@ import java.text.NumberFormat
 import java.util.Locale
 class CartAdapter(
     private val itemList: List<Cart>,
-    private val onTotalChanged: () -> Unit // Callback để gọi ngược ra Activity tính tổng
+    private val onTotalChanged: () -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
     class CartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -23,7 +23,6 @@ class CartAdapter(
         val txtPrice: TextView = view.findViewById(R.id.txtProductPrice)
         val txtQuantity: TextView = view.findViewById(R.id.txtQuantity)
 
-        // Khai báo nút tăng/giảm nếu bạn cần xử lý sau này
         val btnPlus: ImageView = view.findViewById(R.id.btnPlus)
         val btnMinus: ImageView = view.findViewById(R.id.btnMinus)
     }
@@ -40,22 +39,17 @@ class CartAdapter(
         holder.txtSize.text = item.size
         holder.txtQuantity.text = item.quantity.toString()
 
-        // Định dạng số tiền kiểu VNĐ (vd: 3.290.000đ)
         val format = NumberFormat.getInstance(Locale("vi", "VN"))
         holder.txtPrice.text = "${format.format(item.price)}đ"
 
-        // Gán trạng thái checkbox
-        // Quan trọng: Remove listener cũ trước khi set trạng thái để tránh vòng lặp lỗi
         holder.cbSelect.setOnCheckedChangeListener(null)
         holder.cbSelect.isChecked = item.isChecked
 
-        // Bắt sự kiện người dùng click vào Checkbox
         holder.cbSelect.setOnCheckedChangeListener { _, isChecked ->
             item.isChecked = isChecked
-            onTotalChanged() // Báo cho Activity tính toán lại
+            onTotalChanged()
         }
 
-        // (Tùy chọn) Nút Tăng/Giảm số lượng
         holder.btnPlus.setOnClickListener {
             item.quantity++
             notifyItemChanged(position)
