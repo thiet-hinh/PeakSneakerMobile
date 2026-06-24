@@ -1,5 +1,6 @@
 package com.example.shoeshop.activity
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
@@ -27,8 +28,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.main_activity)
+        val imgCart = findViewById<ImageView>(R.id.imgCart)
 
-        // set gradient color for app name
+        imgCart.setOnClickListener {
+            val intent = Intent(this, CartActivity::class.java)
+            startActivity(intent)
+        }
         val txtLogo = findViewById<TextView>(R.id.txtLogo)
         txtLogo.post {
             val textWidth = txtLogo.paint.measureText(txtLogo.text.toString())
@@ -49,7 +54,6 @@ class MainActivity : AppCompatActivity() {
             txtLogo.invalidate()
         }
 
-        // setup number of notification
         txtNotificationBadge = findViewById(R.id.txtNotificationBadge)
         updateNumberNotification(txtNotificationBadge,0)
 
@@ -58,7 +62,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        //setup view pager2
         viewPager = findViewById(R.id.viewPager)
 
         menus = listOf(

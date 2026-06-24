@@ -105,6 +105,79 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                android:text="Thương hiệu"
+                android:textColor="#1C1B1B"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/chipBrandNike"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_selected"
+                    android:gravity="center"
+                    android:text="Nike"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/chipBrandAdidas"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_unselected"
+                    android:gravity="center"
+                    android:text="Adidas"
+                    android:textColor="#1C1B1B"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/chipBrandVans"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_unselected"
+                    android:gravity="center"
+                    android:text="Vans"
+                    android:textColor="#1C1B1B"
+                    android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/chipBrandConverse"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_unselected"
+                    android:gravity="center"
+                    android:text="Converse"
+                    android:textColor="#1C1B1B"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/chipBrandPuma"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_unselected"
+                    android:gravity="center"
+                    android:text="Puma"
+                    android:textColor="#1C1B1B"
+                    android:textSize="13sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
                 android:text="Khoảng giá"
                 android:textColor="#1C1B1B"
                 android:textSize="15sp"
