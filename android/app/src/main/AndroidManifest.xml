@@ -16,6 +16,10 @@
             android:name=".activity.SplashActivity"
             android:exported="true">
 
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
 
@@ -77,12 +81,14 @@
             android:name=".activity.ChangePasswordActivity"
             android:exported="true"
             android:theme="@style/Theme.ShoeShop">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
+        <activity android:name=".activity.ProductDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.CartActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

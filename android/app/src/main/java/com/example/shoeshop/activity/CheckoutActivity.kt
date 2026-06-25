@@ -1,7 +1,9 @@
 package com.example.shoeshop.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,7 +21,6 @@ class CheckoutActivity : AppCompatActivity() {
     private var subtotal = 0.0
     private var shippingFee = 0.0
     private var discount = 250000.0
-
     private var paymentMethod = "VNPAY"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,11 @@ class CheckoutActivity : AppCompatActivity() {
         binding.headerBar.tvTitle.text = "Thanh toán"
         binding.headerBar.btnBack.setOnClickListener { finish() }
 
+        binding.btnEditAddress.setOnClickListener {
+            val intent : Intent = Intent(this, ShippingAddressActivity:: class.java)
+            startActivity(intent)
+        }
+
         setupRecyclerView()
         setupShippingSelection()
         setupPaymentSelection()
@@ -39,6 +45,11 @@ class CheckoutActivity : AppCompatActivity() {
 
         binding.btnPlaceOrder.setOnClickListener {
             Toast.makeText(this, "Đặt hàng thành công", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnPlaceOrder.setOnClickListener {
+            val intent: Intent = Intent(this, OrderSuccessActivity::class.java)
+            startActivity(intent)
         }
     }
 

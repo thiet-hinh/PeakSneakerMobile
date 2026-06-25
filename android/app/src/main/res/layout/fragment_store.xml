@@ -57,11 +57,45 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvStoreProducts"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="14dp"
-        android:paddingBottom="80dp" /> </LinearLayout>
+        android:layout_marginTop="16dp">
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:shimmer_auto_start="true">
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:paddingHorizontal="14dp">
+
+                <include layout="@layout/item_product_skeleton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+                <include layout="@layout/item_product_skeleton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+                <include layout="@layout/item_product_skeleton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+                <include layout="@layout/item_product_skeleton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            </GridLayout>
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvStoreProducts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="14dp"
+            android:paddingBottom="80dp"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/layoutEmptySearch"
+            layout="@layout/layout_empty_search"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+    </FrameLayout>
+</LinearLayout>

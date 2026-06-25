@@ -69,21 +69,13 @@ class OrderFragment : Fragment(R.layout.fragment_order) {
 
        return listOf(
            OrderReponse(
-               image = "https://res.cloudinary.com/duypvtz5w/image/upload/v1780831537/smart-man.jpg",
                orderCode = "DH001",
-               productName = "Nike Air Force 1",
-               size = "42",
-               color = "White",
                orderDate = "23/06/2026",
                price = "2.500.000đ",
                status = OrderStatus.PROCESSING
            ),
            OrderReponse(
-               image ="https://res.cloudinary.com/duypvtz5w/image/upload/v1780831537/smart-man.jpg",
                orderCode = "DH002",
-               productName = "Jordan 1 Low",
-               size = "41",
-               color = "Black",
                orderDate = "22/06/2026",
                price = "3.200.000đ",
                status = OrderStatus.PROCESSING

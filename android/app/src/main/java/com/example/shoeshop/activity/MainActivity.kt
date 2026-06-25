@@ -1,5 +1,6 @@
 package com.example.shoeshop.activity
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
@@ -28,7 +29,17 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.main_activity)
 
-        // set gradient color for app name
+        val target = intent.getStringExtra("OPEN_FRAGMENT")
+        var startIndexFragment =0
+        if (target == "STORE") {
+            startIndexFragment =1
+        }
+
+        val imgCart = findViewById<ImageView>(R.id.imgCart)
+        imgCart.setOnClickListener {
+            val intent = Intent(this, CartActivity::class.java)
+            startActivity(intent)
+        }
         val txtLogo = findViewById<TextView>(R.id.txtLogo)
         txtLogo.post {
             val textWidth = txtLogo.paint.measureText(txtLogo.text.toString())
@@ -49,7 +60,6 @@ class MainActivity : AppCompatActivity() {
             txtLogo.invalidate()
         }
 
-        // setup number of notification
         txtNotificationBadge = findViewById(R.id.txtNotificationBadge)
         updateNumberNotification(txtNotificationBadge,0)
 
@@ -58,7 +68,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        //setup view pager2
         viewPager = findViewById(R.id.viewPager)
 
         menus = listOf(
@@ -96,7 +105,9 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        updateBottomMenu(0)
+        viewPager.adapter = PagerAdapter(this)
+        viewPager.currentItem = startIndexFragment
+        updateBottomMenu(startIndexFragment)
     }
 
     private fun updateBottomMenu(position: Int) {

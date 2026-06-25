@@ -109,4 +109,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
 }

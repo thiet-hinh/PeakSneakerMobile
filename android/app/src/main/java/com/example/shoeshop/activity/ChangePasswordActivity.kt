@@ -1,5 +1,6 @@
 package com.example.shoeshop.activity
 
+import android.R
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
@@ -15,8 +16,12 @@ class ChangePasswordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ChangePasswordActivityBinding.inflate(layoutInflater)
-
         setContentView(binding.root)
+
+        binding.header.btnBack.setOnClickListener{
+            finish()
+        }
+        binding.header.tvTitle.text =getString( com.example.shoeshop.R.string.titleChangePasswordPage)
 
         binding.edtNewPassword.doAfterTextChanged {
 

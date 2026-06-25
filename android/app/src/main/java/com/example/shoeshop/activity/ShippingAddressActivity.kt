@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.shoeshop.R
 import com.example.shoeshop.adapter.AddressSpinnerAdapter
 import com.example.shoeshop.databinding.ShippingAddressActivityBinding
 import com.example.shoeshop.dto.respone.AddressItem
@@ -22,8 +23,17 @@ class ShippingAddressActivity : AppCompatActivity() {
         binding = ShippingAddressActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.header.btnBack.setOnClickListener {
+            finish()
+        }
+        binding.header.tvTitle.text =getString( R.string.titleEditAdressPage)
+
         initListeners()
         loadProvinces()
+
+        binding.btnSave.setOnClickListener {
+            // do it
+        }
     }
 
     private fun initListeners() {

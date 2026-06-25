@@ -24,6 +24,7 @@ class OrderSuccessActivity : AppCompatActivity() {
         binding.btnContinueShopping.setOnClickListener {
 
             val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("OPEN_FRAGMENT", "STORE")
 
             intent.flags =
                 Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -33,7 +34,6 @@ class OrderSuccessActivity : AppCompatActivity() {
         }
 
         binding.btnOrderDetail.setOnClickListener {
-
             val intent = Intent(
                 this,
                 OrderDetailActivity::class.java

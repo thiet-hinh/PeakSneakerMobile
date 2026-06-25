@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    android:layout_marginHorizontal="2dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <CheckBox
+            android:id="@+id/cbSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:buttonTint="#5D5F5F"
+            android:checked="true" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            app:cardBackgroundColor="#F5F5F7"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/imgProduct"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/banner_placeholder" /> </androidx.cardview.widget.CardView>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:layout_marginStart="16dp">
+
+            <TextView
+                android:id="@+id/txtProductName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/btnRemove"
+                android:fontFamily="@font/plusjakartasans_extrabold"
+                android:maxLines="2"
+                android:text="Nike Air Max 270"
+                android:textColor="#1C1B1B"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btnRemove"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_close"
+                app:tint="#747676" />
+
+            <TextView
+                android:id="@+id/txtProductSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/txtProductName"
+                android:layout_marginTop="4dp"
+                android:text="Size: 42"
+                android:textColor="#444748"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtProductPrice"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:maxLines="1"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeMaxTextSize="18sp"
+                    android:fontFamily="@font/plusjakartasans_extrabold"
+                    android:text="3.290.000đ"
+                    android:textColor="#1C1B1B"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_quantity_selector"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:id="@+id/btnMinus"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_remove"
+                        app:tint="#5D5F5F" />
+
+                    <TextView
+                        android:id="@+id/txtQuantity"
+                        android:layout_width="28dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textColor="#1C1B1B"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/btnPlus"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_add"
+                        app:tint="#5D5F5F" />
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
