@@ -46,8 +46,46 @@
             android:exported="true"
             android:theme="@style/Theme.ShoeShop">
         </activity>
+
+        <activity
+            android:name=".activity.OrderDetailActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoeShop">
+        </activity>
+
+        <activity
+            android:name=".activity.CheckoutActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoeShop">
+        </activity>
+
+        <activity
+            android:name=".activity.OrderSuccessActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoeShop">
+        </activity>
+
+        <activity
+            android:name=".activity.EditProfileActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoeShop">
+        </activity>
+
+        <activity
+            android:name=".activity.ShippingAddressActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoeShop">
+        </activity>
+
+        <activity
+            android:name=".activity.ChangePasswordActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoeShop">
+        </activity>
+
         <activity android:name=".activity.ProductDetailActivity"
             android:exported="false" />
+
         <activity
             android:name=".activity.CartActivity"
             android:exported="false" />

@@ -28,8 +28,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.main_activity)
-        val imgCart = findViewById<ImageView>(R.id.imgCart)
 
+        val target = intent.getStringExtra("OPEN_FRAGMENT")
+        var startIndexFragment =0
+        if (target == "STORE") {
+            startIndexFragment =1
+        }
+
+        val imgCart = findViewById<ImageView>(R.id.imgCart)
         imgCart.setOnClickListener {
             val intent = Intent(this, CartActivity::class.java)
             startActivity(intent)
@@ -99,7 +105,9 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        updateBottomMenu(0)
+        viewPager.adapter = PagerAdapter(this)
+        viewPager.currentItem = startIndexFragment
+        updateBottomMenu(startIndexFragment)
     }
 
     private fun updateBottomMenu(position: Int) {

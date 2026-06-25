@@ -1,6 +1,8 @@
 package com.example.shoeshop.activity // Đổi theo package của bạn
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +21,8 @@ class CartActivity : AppCompatActivity() {
     private lateinit var txtSubTotal: TextView
     private lateinit var txtTotal: TextView
 
+    private lateinit var btnCheckout: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_cart)
@@ -29,6 +33,13 @@ class CartActivity : AppCompatActivity() {
         val rvCartItems = findViewById<RecyclerView>(R.id.rvCartItems)
 
         btnBack.setOnClickListener { finish() }
+
+
+        btnCheckout= findViewById<Button>(R.id.btnCheckout)
+        btnCheckout.setOnClickListener {
+           val intent: Intent = Intent(this, CheckoutActivity:: class.java)
+            startActivity(intent)
+        }
 
         myCartList = listOf(
             Cart("Nike Air Max 270", "Size: 42", 3290000L, 1),

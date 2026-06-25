@@ -8,10 +8,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.shoeshop.R
-import com.example.shoeshop.enums.OrderStatus
 import com.example.shoeshop.dto.respone.OrderReponse
+import com.example.shoeshop.enums.OrderStatus
 
 class OrderAdapter(
     private var orders: List<OrderReponse> = emptyList()
@@ -19,11 +18,7 @@ class OrderAdapter(
 
     inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val imgProduct: ImageView = itemView.findViewById(R.id.imgProduct)
         val txtOrderCode: TextView = itemView.findViewById(R.id.txtOrderCode)
-        val txtProductName: TextView = itemView.findViewById(R.id.txtProductName)
-        val txtSize: TextView = itemView.findViewById(R.id.txtSize)
-        val txtColor: TextView = itemView.findViewById(R.id.txtColor)
         val txtOrderDate: TextView = itemView.findViewById(R.id.txtOrderDate)
         val txtPrice: TextView = itemView.findViewById(R.id.txtPrice)
 
@@ -46,14 +41,7 @@ class OrderAdapter(
 
         val order = orders[position]
 
-        Glide.with(holder.itemView.context)
-            .load(order.image)
-            .into(holder.imgProduct)
-
         holder.txtOrderCode.text = "Mã đơn: ${order.orderCode}"
-        holder.txtProductName.text = order.productName
-        holder.txtSize.text = "Size: ${order.size}"
-        holder.txtColor.text = "Màu: ${order.color}"
         holder.txtOrderDate.text = "Ngày đặt: ${order.orderDate}"
         holder.txtPrice.text = order.price
 

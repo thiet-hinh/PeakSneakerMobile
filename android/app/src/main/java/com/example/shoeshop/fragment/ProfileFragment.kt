@@ -9,7 +9,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.shoeshop.R
+import com.example.shoeshop.activity.ChangePasswordActivity
+import com.example.shoeshop.activity.EditProfileActivity
+import com.example.shoeshop.activity.ForgotPasswordActivity
 import com.example.shoeshop.activity.LoginActivity
+import com.example.shoeshop.activity.ShippingAddressActivity
 import com.example.shoeshop.databinding.FragmentProfileBinding
 import com.example.shoeshop.utils.PrefManager
 
@@ -17,14 +21,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-
-    private val pickImageLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                binding.imgAvatar.setImageURI(it)
-                // TODO: Upload avatar lên server ở đây
-            }
-        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,39 +37,28 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun setupEvents() {
-        // Sự kiện click cho Avatar và nút sửa Avatar
-        binding.imgAvatar.setOnClickListener { openGallery() }
-
-        binding.btnEditAvatar.setOnClickListener {
-            // TODO: Mở EditProfileActivity (Đã xóa bỏ dòng trùng lặp mở Gallery)
-            Toast.makeText(requireContext(), "Mở chỉnh sửa hồ sơ", Toast.LENGTH_SHORT).show()
-        }
+        var intent: Intent
 
         // Các mục tính năng khác
+
+        binding.profileEdit.setOnClickListener {
+            intent = Intent(requireContext(), EditProfileActivity:: class.java)
+            startActivity(intent)
+        }
         binding.itemAddress.setOnClickListener {
-            // TODO: Mở AddressActivity
+           intent = Intent(requireContext(), ShippingAddressActivity:: class.java)
+            startActivity(intent)
         }
 
         binding.itemChangePassword.setOnClickListener {
-            // TODO: Mở ChangePasswordActivity
-        }
-
-        binding.itemSetting.setOnClickListener {
-            // TODO: Mở SettingActivity
-        }
-
-        binding.itemSupport.setOnClickListener {
-            // TODO: Mở SupportActivity
+            intent = Intent(requireContext(), ChangePasswordActivity:: class.java)
+            startActivity(intent)
         }
 
         // Sự kiện Click cho nút Đăng xuất
         binding.btnLogout.setOnClickListener {
             logout()
         }
-    }
-
-    private fun openGallery() {
-        pickImageLauncher.launch("image/*")
     }
 
     private fun logout() {
