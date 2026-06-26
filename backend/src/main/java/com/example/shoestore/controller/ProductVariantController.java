@@ -30,7 +30,7 @@ public class ProductVariantController {
         return ResponseEntity.ok(productVariantService.save(variant));
     }
 
-    @GetMapping("/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<ProductVariant> update(
             @PathVariable Integer id,
             @RequestBody ProductVariant variant) {

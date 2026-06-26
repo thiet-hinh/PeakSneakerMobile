@@ -4,11 +4,17 @@ package com.example.shoeshop.activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.shoeshop.R
 import com.example.shoeshop.databinding.RegisterActivityBinding
 import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.lifecycleScope
+import com.example.shoeshop.dto.request.RegisterRequest
+import com.example.shoeshop.retrofit.UserRetrofit
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: RegisterActivityBinding
@@ -116,16 +122,54 @@ class RegisterActivity : AppCompatActivity() {
         binding.btnRegister.isEnabled = false
 
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-            binding.btnRegister.isEnabled = true
+            if (!task.isSuccessful) {
+                binding.btnRegister.isEnabled = true
+                val exception = task.exception
+                when (exception) {
+                    is FirebaseAuthUserCollisionException -> {
+                        Log.e("Register", "Email đã tồn tại", exception)
+                        Toast.makeText(this, "Email đã được sử dụng", Toast.LENGTH_LONG).show()
+                    }
+                    else -> {
+                        Log.e("Register", "Firebase đăng ký thất bại", exception)
+                        Toast.makeText(this, exception?.localizedMessage ?: "Đăng ký thất bại", Toast.LENGTH_LONG).show()
+                    }
+                }
+                return@addOnCompleteListener
+            }
 
-            if (task.isSuccessful) {
-                val uid = task.result.user?.uid ?: ""
+            val firebaseUser = task.result.user!!
+            val firebaseUid = firebaseUser.uid
+            Log.d("Register", "Firebase đăng ký thành công. UID = $firebaseUid")
 
-                Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
+            val request = RegisterRequest(
+                firebaseUid = firebaseUid,
+                firstname = firstName,
+                lastname = lastName,
+                email = email,
+                phone = phone
+            )
 
-                finish()
-            } else {
-                Toast.makeText(this, task.exception?.message ?: "Đăng ký thất bại", Toast.LENGTH_LONG).show()
+            lifecycleScope.launch {
+                try {
+                    val response = UserRetrofit.api.register(request)
+                    binding.btnRegister.isEnabled = true
+
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@RegisterActivity, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
+                        finish()
+                    } else {
+                        Log.e("Register", "Spring Boot trả về lỗi code = ${response.code()}")
+                        Log.e("Register", "Body = ${response.errorBody()?.string()}")
+                        firebaseUser.delete()
+                        Toast.makeText(this@RegisterActivity, "Không thể lưu người dùng lên hệ thống.", Toast.LENGTH_LONG).show()
+                    }
+                } catch (e: Exception) {
+                    binding.btnRegister.isEnabled = true
+                    Log.e("Register", "Không gọi được API Spring Boot", e)
+                    firebaseUser.delete()
+                    Toast.makeText(this@RegisterActivity, e.localizedMessage ?: "Có lỗi xảy ra", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

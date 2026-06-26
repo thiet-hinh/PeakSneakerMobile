@@ -62,11 +62,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun logout() {
-        // Hiển thị Toast thông báo để chắc chắn hàm này được gọi trúng
         Toast.makeText(requireContext(), "Đang đăng xuất...", Toast.LENGTH_SHORT).show()
 
         // Xóa dữ liệu đăng nhập cũ trong SharePreferences
-        PrefManager.clear(requireContext())
+        PrefManager.clearUser(requireContext())
 
         // Chuyển hướng về màn hình Login và xóa hết tất cả các Activity trước đó khỏi Task
         val intent = Intent(requireContext(), LoginActivity::class.java)

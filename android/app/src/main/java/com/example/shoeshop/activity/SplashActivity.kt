@@ -8,6 +8,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import com.example.shoeshop.R
+import com.example.shoeshop.utils.PrefManager
 import com.google.firebase.auth.FirebaseAuth
 
 class SplashActivity : AppCompatActivity() {
@@ -21,15 +22,20 @@ class SplashActivity : AppCompatActivity() {
         findViewById<View>(R.id.layoutLoading).startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_up))
         findViewById<View>(R.id.imgLogo).startAnimation(AnimationUtils.loadAnimation(this, R.anim.pulse_scale))
 
-        // Điều hướng sau 5 giây
+        // Điều hướng sau 2 giây
         Handler(Looper.getMainLooper()).postDelayed({
-//            val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-//            val currentUser = FirebaseAuth.getInstance().currentUser
+            //Kiểm tra instance của firebase
+            val currentUser = FirebaseAuth.getInstance().currentUser
 
-            var currentUser : String? = null
-
-            if (currentUser== null) {
-                startActivity(Intent(this, MainActivity::class.java))
+            if (currentUser != null) {
+                val localUser = PrefManager.getUser(applicationContext)
+                //Kiểm thông tin User local có còn không
+                if (localUser != null) {
+                    startActivity(Intent(this, MainActivity::class.java))
+                } else {
+                    FirebaseAuth.getInstance().signOut()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
             }

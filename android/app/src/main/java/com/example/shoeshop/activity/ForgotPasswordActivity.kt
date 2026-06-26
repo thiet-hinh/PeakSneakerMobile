@@ -3,10 +3,12 @@ package com.example.shoeshop.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.shoeshop.databinding.ForgotPasswordActivityBinding
+import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 
 class ForgotPasswordActivity : AppCompatActivity() {
@@ -52,15 +54,23 @@ class ForgotPasswordActivity : AppCompatActivity() {
         binding.btnConfirm.isEnabled = false
         binding.btnConfirm.text = "Đang gửi..."
 
-        auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
+        val actionCodeSettings = ActionCodeSettings.newBuilder()
+            .setUrl("https://shoeshop-b6479.firebaseapp.com")
+            .setHandleCodeInApp(true)
+            .setAndroidPackageName(packageName, true, "1")
+            .build()
+
+        auth.sendPasswordResetEmail(email, actionCodeSettings).addOnCompleteListener { task ->
             binding.btnConfirm.isEnabled = true
             binding.btnConfirm.text = "Xác nhận email"
 
             if (task.isSuccessful) {
-                Toast.makeText(this, "Đã gửi email đặt lại mật khẩu", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Đã gửi email khôi phục mật khẩu thành công!", Toast.LENGTH_LONG).show()
                 finish()
             } else {
-                Toast.makeText(this, task.exception?.message ?: "Gửi email thất bại", Toast.LENGTH_LONG).show()
+                val errorMsg = task.exception?.localizedMessage ?: "Gửi email thất bại"
+                Log.e("FirebaseAuth", "Lỗi gửi mail: $errorMsg")
+                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
             }
         }
     }

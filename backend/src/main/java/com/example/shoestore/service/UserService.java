@@ -1,5 +1,7 @@
 package com.example.shoestore.service;
 
+import com.example.shoestore.dto.request.RegisterRequest;
+import com.example.shoestore.dto.response.UserResponse;
 import com.example.shoestore.entity.Cart;
 import com.example.shoestore.entity.User;
 import com.example.shoestore.enums.Role;
@@ -22,9 +24,20 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
-    public User findByFirebaseId(String uid) {
-        return userRepository.findByFirebaseUid(uid)
-                .orElseThrow(() -> new RuntimeException("User not found with uid: " + uid));
+    public UserResponse findByFirebaseId(String uid) {
+        User user = findEntityByFirebaseId(uid);
+        System.out.println("Tìm thấy User trong DB: " + user.getEmail() + " với UID: " + user.getFirebaseUid());
+        return UserResponse.builder()
+                .id(user.getId())
+                .firebaseUid(user.getFirebaseUid())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .role(user.getRole() != null ? user.getRole().name() : "USER")
+                .isActive(user.getIsActive() != null ? user.getIsActive() : true)
+                .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toString() : "")
+                .build();
     }
 
     public User findByEmail(String email) {
@@ -50,26 +63,46 @@ public class UserService {
     }
 
     @Transactional
-    public User update(String id, User updated) {
-        User existing = findByFirebaseId(id);
-        existing.setFirstName(updated.getFirstName());
-        existing.setLastName(updated.getLastName());
-        existing.setPhone(updated.getPhone());
-        existing.setAvatar(updated.getAvatar());
-        return userRepository.save(existing);
+    public UserResponse update(String id, UserResponse updatedDto) {
+        User existing = findEntityByFirebaseId(id);
+
+        existing.setFirstName(updatedDto.getFirstName());
+        existing.setLastName(updatedDto.getLastName());
+        existing.setPhone(updatedDto.getPhone());
+
+        User savedUser = userRepository.save(existing);
+        return UserResponse.builder()
+                .id(savedUser.getId())
+                .firebaseUid(savedUser.getFirebaseUid())
+                .firstName(savedUser.getFirstName())
+                .lastName(savedUser.getLastName())
+                .email(savedUser.getEmail())
+                .phone(savedUser.getPhone())
+                .role(savedUser.getRole() != null ? savedUser.getRole().name() : "USER")
+                .isActive(savedUser.getIsActive())
+                .createdAt(savedUser.getCreatedAt() != null ? savedUser.getCreatedAt().toString() : "")
+                .build();
     }
 
     @Transactional
     public void setActive(String id, Boolean isActive) {
-        User user = findByFirebaseId(id);
+        User user = findEntityByFirebaseId(id);
         user.setIsActive(isActive);
         userRepository.save(user);
     }
 
     @Transactional
-    public User createUser(User user) {
-        User savedUser = userRepository.save(user);
+    public User register(RegisterRequest request) {
+        User user = new User();
 
+        user.setFirebaseUid(request.getFirebaseUid());
+        user.setFirstName(request.getFirstname());
+        user.setLastName(request.getLastname());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setRole(Role.USER);
+
+        User savedUser = userRepository.save(user);
         Cart cart = Cart.builder()
                 .user(savedUser)
                 .build();
@@ -77,5 +110,10 @@ public class UserService {
         cartRepository.save(cart);
 
         return savedUser;
+    }
+
+    private User findEntityByFirebaseId(String uid) {
+        return userRepository.findByFirebaseUid(uid)
+                .orElseThrow(() -> new RuntimeException("User not found with uid: " + uid));
     }
 }

@@ -2,11 +2,15 @@ package com.example.shoeshop.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.shoeshop.databinding.LoginActivityBinding
+import com.example.shoeshop.retrofit.UserRetrofit
 import com.example.shoeshop.utils.PrefManager
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
@@ -21,7 +25,9 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        binding.btnLogin.setOnClickListener { }
+        binding.btnLogin.setOnClickListener {
+            login()
+        }
 
         binding.tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
@@ -51,21 +57,46 @@ class LoginActivity : AppCompatActivity() {
         binding.btnLogin.isEnabled = false
         binding.btnLogin.text = "Đang đăng nhập..."
 
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                val uid = auth.currentUser?.uid ?: ""
-
-                PrefManager.saveUid(this, uid)
-
-                startActivity(Intent(this, MainActivity::class.java))
-
-                finishAffinity()
-            }
-            .addOnFailureListener {
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
                 binding.btnLogin.isEnabled = true
                 binding.btnLogin.text = "Đăng nhập"
-
-                Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                Log.e("Login", "Firebase login failed", task.exception)
+                Toast.makeText(this, task.exception?.localizedMessage ?: "Đăng nhập thất bại", Toast.LENGTH_LONG).show()
+                return@addOnCompleteListener
             }
+
+            val firebaseUid = task.result.user!!.uid
+
+            lifecycleScope.launch {
+                try {
+                    val response = UserRetrofit.api.getUserByFireBaseUid(firebaseUid)
+                    if (isFinishing || isDestroyed) return@launch
+
+                    binding.btnLogin.isEnabled = true
+                    binding.btnLogin.text = "Đăng nhập"
+
+                    if (response.isSuccessful) {
+                        val user = response.body()
+                        if (user == null) {
+                            Toast.makeText(this@LoginActivity, "Không tìm thấy thông tin người dùng.", Toast.LENGTH_LONG).show()
+                            return@launch
+                        }
+                        PrefManager.saveUser(applicationContext, user)
+                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        finishAffinity()
+                    } else {
+                        Log.e("Login", "Server error ${response.code()}")
+                        Log.e("Login", response.errorBody()?.string() ?: "")
+                        Toast.makeText(this@LoginActivity, "Không lấy được thông tin người dùng.", Toast.LENGTH_LONG).show()
+                    }
+                } catch (e: Exception) {
+                    if (isFinishing || isDestroyed) return@launch
+                    binding.btnLogin.isEnabled = true
+                    binding.btnLogin.text = "Đăng nhập"
+                    Toast.makeText(this@LoginActivity, e.localizedMessage ?: "Có lỗi xảy ra", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 }

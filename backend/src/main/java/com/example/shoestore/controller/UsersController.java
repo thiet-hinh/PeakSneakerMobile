@@ -1,5 +1,7 @@
 package com.example.shoestore.controller;
 
+import com.example.shoestore.dto.request.RegisterRequest;
+import com.example.shoestore.dto.response.UserResponse;
 import com.example.shoestore.entity.User;
 import com.example.shoestore.enums.Role;
 import com.example.shoestore.service.UserService;
@@ -16,9 +18,10 @@ public class UsersController {
 
     private final UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(userService.findById(id));
+
+    @GetMapping("/{uid}")
+    public ResponseEntity<UserResponse> getByUid(@PathVariable("uid") String uid) {
+        return ResponseEntity.ok(userService.findByFirebaseId(uid));
     }
 
     @GetMapping("/email/{email}")
@@ -32,13 +35,15 @@ public class UsersController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
-        return ResponseEntity.ok(userService.save(user));
+    @PostMapping("/register")
+    public ResponseEntity<User> register(
+            @RequestBody RegisterRequest request) {
+
+        return ResponseEntity.ok(userService.register(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(String uid, @RequestBody User user) {
+    public ResponseEntity<UserResponse> update(String uid, @RequestBody UserResponse user) {
         return ResponseEntity.ok(userService.update(uid, user));
     }
 

@@ -1,21 +1,26 @@
 package com.example.shoeshop.utils
 
 import android.content.Context
+import com.example.shoeshop.model.User
+import com.google.gson.Gson
 
 object PrefManager {
 
-    private const val PREF_NAME = "shoe_store_pref"
-    private const val KEY_UID = "uid"
+    private const val PREF = "app_pref"
+    private const val KEY_USER = "current_user"
+    private val gson = Gson()
 
-    fun saveUid(context: Context, uid: String) {
-        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().putString(KEY_UID, uid).apply()
+    fun saveUser(context: Context, user: User) {
+        val userJson = gson.toJson(user)
+        context.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit().putString(KEY_USER, userJson).apply()
     }
 
-    fun getUid(context: Context): String? {
-        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getString(KEY_UID, null)
+    fun getUser(context: Context): User? {
+        val userJson = context.getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(KEY_USER, null) ?: return null
+        return gson.fromJson(userJson, User::class.java)
     }
 
-    fun clear(context: Context) {
-        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().clear().apply()
+    fun clearUser(context: Context) {
+        context.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit().remove(KEY_USER).apply()
     }
 }
