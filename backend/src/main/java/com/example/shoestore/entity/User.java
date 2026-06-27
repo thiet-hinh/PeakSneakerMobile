@@ -46,7 +46,7 @@ public class User {
     private LocalDateTime createdAt;
 
     @Lob
-    @Column(name = "avatar")
+    @Column(name = "avatar", columnDefinition = "MEDIUMBLOB")
     private byte[] avatar;
 
     @Builder.Default
