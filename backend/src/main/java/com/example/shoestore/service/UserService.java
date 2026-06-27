@@ -1,6 +1,8 @@
 package com.example.shoestore.service;
 
 import com.example.shoestore.dto.request.RegisterRequest;
+import com.example.shoestore.dto.request.UserProfileRequest;
+import com.example.shoestore.dto.response.UserProfileResponse;
 import com.example.shoestore.dto.response.UserResponse;
 import com.example.shoestore.entity.Cart;
 import com.example.shoestore.entity.User;
@@ -110,6 +112,33 @@ public class UserService {
         cartRepository.save(cart);
 
         return savedUser;
+    }
+
+    public UserProfileResponse getProfile(Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return UserProfileResponse.builder().id(user.getId()).firstName(user.getFirstName()).lastName(user.getLastName()).email(user.getEmail()).phone(user.getPhone()).build();
+    }
+
+    @Transactional
+    public UserProfileResponse updateProfile(Integer userId, UserProfileRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPhone(request.getPhone());
+        userRepository.save(user);
+        return getProfile(userId);
+    }
+
+    public byte[] getAvatar(Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getAvatar();
+    }
+
+    @Transactional
+    public void updateAvatar(Integer userId, byte[] avatar) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setAvatar(avatar);
+        userRepository.save(user);
     }
 
     private User findEntityByFirebaseId(String uid) {
