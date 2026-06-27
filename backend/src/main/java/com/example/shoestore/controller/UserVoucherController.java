@@ -15,12 +15,12 @@ public class UserVoucherController {
 
     private final UserVoucherService userVoucherService;
 
-    @GetMapping("/user-vouchers/{id}")
+    @GetMapping("/user-voucher/{id}")
     public ResponseEntity<UserVoucher> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(userVoucherService.findById(id));
     }
 
-    @PutMapping("/user-vouchers/{id}/use")
+    @PutMapping("/user-voucher/{id}/use")
     public ResponseEntity<Void> setUsed(@PathVariable Integer id) {
         userVoucherService.markAsUnused(id);
         return ResponseEntity.noContent().build();

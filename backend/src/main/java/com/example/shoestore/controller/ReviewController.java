@@ -20,14 +20,14 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     // Lấy tất cả review theo sản phẩm
-    @GetMapping("/products/{productId}/reviews")
+    @GetMapping("/product/{productId}/reviews")
     public ResponseEntity<List<Review>> getByProduct(
             @PathVariable Integer productId) {
         return ResponseEntity.ok(reviewService.findByProductId(productId));
     }
 
     // Lấy điểm trung bình và số lượng review của sản phẩm
-    @GetMapping("/products/{productId}/reviews/summary")
+    @GetMapping("/product/{productId}/reviews/summary")
     public ResponseEntity<Map<String, Object>> getSummary(@PathVariable Integer productId) {
         return ResponseEntity.ok(Map.of(
                 "averageStar", reviewService.findAverageStarByProductId(productId),
@@ -35,13 +35,13 @@ public class ReviewController {
         ));
     }
 
-    @GetMapping("/reviews/{id}")
+    @GetMapping("/review/{id}")
     public ResponseEntity<Review> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(reviewService.findById(id));
     }
 
     // Tạo review mới
-    @PostMapping("/products/{productId}/reviews")
+    @PostMapping("/product/{productId}/review")
     public ResponseEntity<Review> create(
             @PathVariable Integer productId,
             @RequestBody Review review) {

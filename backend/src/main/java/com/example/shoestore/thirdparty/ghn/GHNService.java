@@ -1,15 +1,20 @@
 package com.example.shoestore.thirdparty.ghn;
 
+import com.example.shoestore.dto.response.AddressItemResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@Service
 public class GHNService {
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -31,25 +36,40 @@ public class GHNService {
         return headers;
     }
 
-    public Object getProvinces() {
+    public List<AddressItemResponse> getProvinceList() {
         String url = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province";
         HttpEntity<String> entity = new HttpEntity<>(createHeaders());
-        ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
-        return response.getBody();
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
+        List<AddressItemResponse> result = new ArrayList<>();
+        for (Map<String, Object> item : data) {
+            result.add(new AddressItemResponse(item.get("ProvinceID").toString(), item.get("ProvinceName").toString()));
+        }
+        return result;
     }
 
-    public Object getDistricts(int provinceId) {
+    public List<AddressItemResponse> getDistrictList(Integer provinceId) {
         String url = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=" + provinceId;
         HttpEntity<String> entity = new HttpEntity<>(createHeaders());
-        ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
-        return response.getBody();
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
+        List<AddressItemResponse> result = new ArrayList<>();
+        for (Map<String, Object> item : data) {
+            result.add(new AddressItemResponse(item.get("DistrictID").toString(), item.get("DistrictName").toString()));
+        }
+        return result;
     }
 
-    public Object getWards(int districtId) {
+    public List<AddressItemResponse> getWardList(Integer districtId) {
         String url = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" + districtId;
         HttpEntity<String> entity = new HttpEntity<>(createHeaders());
-        ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
-        return response.getBody();
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
+        List<AddressItemResponse> result = new ArrayList<>();
+        for (Map<String, Object> item : data) {
+            result.add(new AddressItemResponse(item.get("WardCode").toString(), item.get("WardName").toString()));
+        }
+        return result;
     }
 
     public Object calculateFee(int toDistrictId, String toWardCode) {

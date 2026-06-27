@@ -1,7 +1,14 @@
 package com.example.shoestore.service;
 
+import com.example.shoestore.dto.request.AddressRequest;
+import com.example.shoestore.dto.response.AddressItemResponse;
+import com.example.shoestore.dto.response.AddressResponse;
+import com.example.shoestore.dto.response.UserResponse;
 import com.example.shoestore.entity.Address;
+import com.example.shoestore.entity.User;
 import com.example.shoestore.repository.AddressRepository;
+import com.example.shoestore.repository.UserRepository;
+import com.example.shoestore.thirdparty.ghn.GHNService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,15 +19,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AddressService {
     private final AddressRepository addressRepository;
-
-    public List<Address> findByUserId(Integer userId) {
-        return addressRepository.findByUserId(userId);
-    }
+    private final UserRepository userRepository;
+    private final GHNService ghnService;
 
 
-    public Address findDefaultByUserId(Integer userId) {
-        return addressRepository.findByUserIdAndIsDefaultTrue(userId)
-                .orElseThrow(() -> new RuntimeException("No default address for user: " + userId));
+    public AddressResponse findDefaultByUserId(Integer userId) {
+
+        Address address = addressRepository.findByUserIdAndIsDefaultTrue(userId)
+                .orElseThrow(() -> new RuntimeException("No default address"));
+
+        return AddressResponse.builder()
+                .id(address.getId())
+                .provinceId(address.getProvinceId())
+                .provinceName(address.getProvinceName())
+                .districtId(address.getDistrictId())
+                .districtName(address.getDistrictName())
+                .wardId(address.getWardId())
+                .wardName(address.getWardName())
+                .streetDetail(address.getStreetDetail())
+                .userName(address.getUserName())
+                .phone(address.getPhone())
+                .build();
     }
 
     @Transactional
@@ -29,19 +48,50 @@ public class AddressService {
     }
 
     @Transactional
-    public Address update(Integer userId, Address updated) {
-        Address existing = findDefaultByUserId(userId);
-        existing.setUserName(updated.getUserName());
-        existing.setPhone(updated.getPhone());
-        existing.setProvinceId(updated.getProvinceId());
-        existing.setProvinceName(updated.getProvinceName());
-        existing.setDistrictId(updated.getDistrictId());
-        existing.setDistrictName(updated.getDistrictName());
-        existing.setWardId(updated.getWardId());
-        existing.setWardName(updated.getWardName());
-        existing.setStreetDetail(updated.getStreetDetail());
-        existing.setIsDefault(true);
-        return addressRepository.save(existing);
+    public AddressResponse saveOrUpdate(Integer userId, AddressRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Address address = addressRepository.findByUserIdAndIsDefaultTrue(userId)
+                .orElse(new Address());
+
+        address.setUser(user);
+        address.setProvinceId(request.getProvinceId());
+        address.setProvinceName(request.getProvinceName());
+        address.setDistrictId(request.getDistrictId());
+        address.setDistrictName(request.getDistrictName());
+        address.setWardId(request.getWardId());
+        address.setWardName(request.getWardName());
+        address.setStreetDetail(request.getStreetDetail());
+        address.setUserName(request.getUserName());
+        address.setPhone(request.getPhone());
+        address.setIsDefault(true);
+
+        address = addressRepository.save(address);
+        return AddressResponse.builder()
+                .id(address.getId())
+                .provinceId(address.getProvinceId())
+                .provinceName(address.getProvinceName())
+                .districtId(address.getDistrictId())
+                .districtName(address.getDistrictName())
+                .wardId(address.getWardId())
+                .wardName(address.getWardName())
+                .streetDetail(address.getStreetDetail())
+                .userName(address.getUserName())
+                .phone(address.getPhone())
+                .build();
+    }
+
+    public List<AddressItemResponse> getProvinces() {
+        return ghnService.getProvinceList();
+    }
+
+    public List<AddressItemResponse> getDistricts(Integer provinceId) {
+        return ghnService.getDistrictList(provinceId);
+    }
+
+    public List<AddressItemResponse> getWards(Integer districtId) {
+        return ghnService.getWardList(districtId);
     }
 
 }
