@@ -15,4 +15,6 @@ public interface ImageRepository extends JpaRepository<Image, Integer> {
     Optional<Image> findByProductIdAndIsPrimaryTrue(Integer productId);
 
     Optional<Image> findByImageName(String imageName);
+
+    Optional<Image> findFirstByProductIdAndIsPrimaryTrue(Integer productId);
 }

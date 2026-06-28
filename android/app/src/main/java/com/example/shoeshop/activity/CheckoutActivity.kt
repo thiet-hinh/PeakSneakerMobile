@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shoeshop.adapter.OrderProductAdapter
 import com.example.shoeshop.databinding.CheckoutActivityBinding
+import com.example.shoeshop.dto.respone.OrderItemDetailResponse
 import com.example.shoeshop.dto.respone.OrderProduct
 import java.text.NumberFormat
 import java.util.Locale
@@ -65,8 +66,24 @@ class CheckoutActivity : AppCompatActivity() {
         binding.tvAddress.text = "Tầng 12, Bitexco, 2 Hải Triều, Bến Nghé, Quận 1, TP.HCM"
 
         val products = listOf(
-            OrderProduct(imageUrl = "https://res.cloudinary.com/duypvtz5w/image/upload/v1780831537/smart-man.jpg", brand = "NIKE", productName = "Air Jordan 1", size = "42", color = "Đỏ", quantity = 1, price = 4250000.0),
-            OrderProduct(imageUrl = "https://res.cloudinary.com/duypvtz5w/image/upload/v1780831537/smart-man.jpg", brand = "ADIDAS", productName = "Forum Low", size = "41", color = "Trắng", quantity = 1, price = 2850000.0)
+            OrderItemDetailResponse(
+                imageUrl = "https://res.cloudinary.com/duypvtz5w/image/upload/v1780831537/smart-man.jpg",
+                brand = "NIKE",
+                productName = "Air Jordan 1",
+                size = "42",
+                color = "Đỏ",
+                quantity = 1,
+                price = 4250000.0
+            ),
+            OrderItemDetailResponse(
+                imageUrl = "https://res.cloudinary.com/duypvtz5w/image/upload/v1780831537/smart-man.jpg",
+                brand = "ADIDAS",
+                productName = "Forum Low",
+                size = "41",
+                color = "Trắng",
+                quantity = 1,
+                price = 2850000.0
+            )
         )
 
         adapter.submitList(products)

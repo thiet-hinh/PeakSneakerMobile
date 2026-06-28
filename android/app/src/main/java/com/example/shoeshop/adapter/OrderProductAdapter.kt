@@ -5,27 +5,30 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.shoeshop.databinding.ItemOrderProductBinding
+import com.example.shoeshop.dto.respone.OrderItemDetailResponse
 import com.example.shoeshop.dto.respone.OrderProduct
 import java.text.NumberFormat
 import java.util.Locale
 
 class OrderProductAdapter(
-    private val items: MutableList<OrderProduct> = mutableListOf()
+    private val items: MutableList<OrderItemDetailResponse> = mutableListOf()
 ) : RecyclerView.Adapter<OrderProductAdapter.ViewHolder>() {
 
     inner class ViewHolder(
         private val binding: ItemOrderProductBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: OrderProduct) {
+        fun bind(item: OrderItemDetailResponse) {
             binding.tvBrand.text = item.brand.uppercase()
             binding.tvProductName.text = item.productName
             binding.tvSize.text = "Size: ${item.size}"
-            binding.tvColor.text = "color: ${item.color}"
+            binding.tvColor.text = "Màu: ${item.color}"
             binding.tvQuantity.text = "Số lượng: ${item.quantity}"
             binding.tvPrice.text = formatPrice(item.price)
 
-            Glide.with(binding.root.context).load(item.imageUrl).into(binding.imgProduct)
+            Glide.with(binding.root.context)
+                .load(item.imageUrl)
+                .into(binding.imgProduct)
         }
     }
 
@@ -38,12 +41,13 @@ class OrderProductAdapter(
             )
         )
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) =
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(items[position])
+    }
 
     override fun getItemCount() = items.size
 
-    fun submitList(data: List<OrderProduct>) {
+    fun submitList(data: List<OrderItemDetailResponse>) {
         items.clear()
         items.addAll(data)
         notifyDataSetChanged()

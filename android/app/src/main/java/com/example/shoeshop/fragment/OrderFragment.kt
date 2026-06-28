@@ -1,86 +1,113 @@
 package com.example.shoeshop.fragment
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoeshop.R
+import com.example.shoeshop.activity.OrderDetailActivity
 import com.example.shoeshop.adapter.OrderAdapter
 import com.example.shoeshop.enums.OrderStatus
+import com.example.shoeshop.retrofit.OrderRetrofit
+import com.example.shoeshop.utils.PrefManager
 import com.google.android.material.tabs.TabLayout
-import com.example.shoeshop.dto.respone.OrderReponse
+import kotlinx.coroutines.launch
 
 class OrderFragment : Fragment(R.layout.fragment_order) {
 
     private lateinit var adapter: OrderAdapter
-
     private lateinit var layoutEmpty: LinearLayout
+    private lateinit var tabOrder: TabLayout
+
+    private var userId = -1
+
+    private val orderDetailLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+
+            if (result.resultCode == Activity.RESULT_OK) {
+                reloadCurrentTab()
+            }
+
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tabOrder = view.findViewById<TabLayout>(R.id.tabOrder)
-        val recyclerViewOrder = view.findViewById<RecyclerView>(R.id.recyclerViewOrder)
+        userId = PrefManager.getUser(requireContext())?.id ?: -1
 
-        adapter = OrderAdapter()
+        tabOrder = view.findViewById(R.id.tabOrder)
+        val recyclerViewOrder = view.findViewById<RecyclerView>(R.id.recyclerViewOrder)
         layoutEmpty = view.findViewById(R.id.layoutEmpty)
+
+        adapter = OrderAdapter { order ->
+            val intent = Intent(requireContext(), OrderDetailActivity::class.java)
+            intent.putExtra("ORDER_ID", order.orderCode)
+            orderDetailLauncher.launch(intent)
+
+        }
 
         recyclerViewOrder.layoutManager = LinearLayoutManager(requireContext())
         recyclerViewOrder.adapter = adapter
 
-        tabOrder.addTab(tabOrder.newTab().setText(OrderStatus.PROCESSING.status))
-        tabOrder.addTab(tabOrder.newTab().setText(OrderStatus.SHIPPING.status))
-        tabOrder.addTab(tabOrder.newTab().setText(OrderStatus.DELIVERED.status))
+        tabOrder.addTab(tabOrder.newTab().setText("Chờ xử lý"))
+        tabOrder.addTab(tabOrder.newTab().setText("Đang giao"))
+        tabOrder.addTab(tabOrder.newTab().setText("Đã giao"))
 
         tabOrder.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab) {
-
-                when(tab.position) {
-                    0 -> showOrders(null)
-                    1 -> showOrders(loadOrders())//loadShippingOrders()
-                    2 -> showOrders(loadOrders())//loadDeliveredOrders()
-                }
+                reloadCurrentTab()
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {}
 
             override fun onTabReselected(tab: TabLayout.Tab) {}
+
         })
 
-        showOrders(null)
+        reloadCurrentTab()
     }
 
-    private fun showOrders(orders: List<OrderReponse>?) {
+    private fun reloadCurrentTab() {
 
-        if (orders.isNullOrEmpty()) {
+        if (userId == -1) {
+            Toast.makeText(
+                requireContext(),
+                "Không tìm thấy thông tin người dùng",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
 
-            layoutEmpty.visibility = View.VISIBLE
-
-        } else {
-            layoutEmpty.visibility = View.GONE
-            adapter.submitList(orders)
+        when (tabOrder.selectedTabPosition) {
+            0 -> showOrders(userId, OrderStatus.PROCESSING)
+            1 -> showOrders(userId, OrderStatus.SHIPPING)
+            2 -> showOrders(userId, OrderStatus.DELIVERED)
         }
     }
 
-    private fun loadOrders() : List<OrderReponse> {
-
-       return listOf(
-           OrderReponse(
-               orderCode = "DH001",
-               orderDate = "23/06/2026",
-               price = "2.500.000đ",
-               status = OrderStatus.PROCESSING
-           ),
-           OrderReponse(
-               orderCode = "DH002",
-               orderDate = "22/06/2026",
-               price = "3.200.000đ",
-               status = OrderStatus.PROCESSING
-           )
-       )
-
+    private fun showOrders(userId: Int, status: OrderStatus) {
+        if (userId == -1) {
+            Toast.makeText(requireContext(), "Không tìm thấy user", Toast.LENGTH_SHORT).show()
+            return
+        }
+        lifecycleScope.launch {
+            try {
+                val orderList = OrderRetrofit.api.getOrdersByUserAndStatus(userId, status.name)
+                adapter.submitList(orderList)
+                layoutEmpty.visibility = if (orderList.isEmpty()) View.VISIBLE else View.GONE
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Lỗi tải dữ liệu hoặc lỗi kết nối: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                adapter.submitList(emptyList())
+                layoutEmpty.visibility = View.VISIBLE
+            }
+        }
     }
 }
