@@ -27,11 +27,6 @@ public class UserController {
         return ResponseEntity.ok(userService.findByFirebaseId(uid));
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<User> getByEmail(@PathVariable String email) {
-        return ResponseEntity.ok(userService.findByEmail(email));
-    }
-
     @GetMapping("/role/{role}")
     public ResponseEntity<List<User>> getByRole(@PathVariable Role role) {
         return ResponseEntity.ok(userService.findByRole(role));

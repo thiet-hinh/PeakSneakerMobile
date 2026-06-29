@@ -19,14 +19,4 @@ public class BrandController {
         return ResponseEntity.ok(brandService.findById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<Brand> create(@RequestBody Brand brand) {
-        return ResponseEntity.ok(brandService.save(brand));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Brand> update(@PathVariable Integer id, @RequestBody Brand brand) {
-        return ResponseEntity.ok(brandService.update(id, brand));
-    }
-
 }
