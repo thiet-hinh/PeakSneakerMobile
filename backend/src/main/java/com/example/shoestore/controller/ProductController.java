@@ -2,7 +2,9 @@ package com.example.shoestore.controller;
 
 import com.example.shoestore.dto.request.ProductFilterRequest;
 import com.example.shoestore.dto.response.ProductCardDTO;
+import com.example.shoestore.dto.response.ProductDetailDTO;
 import com.example.shoestore.entity.Product;
+import com.example.shoestore.enums.Gender;
 import com.example.shoestore.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +20,22 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductCardDTO>> getAll(ProductFilterRequest request) {
-        return ResponseEntity.ok(productService.getAllCardProduct( request.gender(),request.brandId(), request.minPrice() ,request.maxPrice(),request.size()));
+    public ResponseEntity<List<ProductCardDTO>> getAll(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Gender gender,
+            @RequestParam(required = false) Integer brandId,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(required = false) String size) {
+
+        // Gửi toàn bộ dữ liệu lọc sang Service
+        List<ProductCardDTO> products = productService.getAllCardProduct(keyword, gender, brandId, minPrice, maxPrice, size);
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(productService.findById(id));
+    public ResponseEntity<ProductDetailDTO> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(productService.getDetailById(id));
     }
 
     @GetMapping("/featured")
