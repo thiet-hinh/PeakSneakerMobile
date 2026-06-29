@@ -1,5 +1,6 @@
 package com.example.shoestore.entity;
 import com.example.shoestore.enums.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -63,6 +64,7 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id", foreignKey = @ForeignKey(name = "fk_product_brand"))
+    @JsonIgnore
     private Brand brand;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -49,6 +49,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     LEFT JOIN p.brand b 
     LEFT JOIN p.variants pv
     WHERE p.isDeleted = false 
+      AND (:keyword IS NULL OR :keyword = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
       AND (:gender IS NULL OR p.gender = :gender)
       AND (:brandId IS NULL OR b.id = :brandId)
       AND (:minPrice IS NULL OR p.price >= :minPrice)
@@ -57,6 +58,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     GROUP BY p.id, p.name, b.name, p.basePrice, p.discountRate, p.price
 """)
     List<ProductCardDTO> findProductCards(
+            @Param("keyword") String keyword, // Thêm param keyword vào đầu tiên
             @Param("gender") Gender gender,
             @Param("brandId") Integer brandId,
             @Param("minPrice") BigDecimal minPrice,

@@ -1,6 +1,8 @@
 package com.example.shoeshop.fragment
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -17,13 +19,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoeshop.R
 import com.example.shoeshop.adapter.StoreProductAdapter
+import com.example.shoeshop.api.ProductApi
 import com.example.shoeshop.model.Product
 import com.example.shoeshop.retrofit.ProductRetrofit
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class StoreFragment : Fragment() {
 
@@ -32,7 +32,20 @@ class StoreFragment : Fragment() {
     private lateinit var layoutEmptySearch: View
     private lateinit var etSearch: EditText
 
-    private var masterProductList = listOf<Product>()
+    // Biến lưu trạng thái bộ lọc toàn cục
+    private var currentKeyword: String? = null
+    private var selectedGenderIdx = 0       // 1: MEN, 2: WOMEN, 3: UNISEX
+    private var selectedBrandIdx = 0        // 1: Nike, 2: Adidas, 3: Vans, 4: Converse, 5: Puma
+    private var selectedPriceRangeIdx = 0   // 1: Dưới 2m, 2: 2m-4m, 3: Trên 4m
+    private var selectedSortOption = 0      // 1: Thấp -> Cao, 2: Cao -> Thấp
+    private var selectedSizeVal: Int? = null
+
+    // Bộ hoãn tránh spam API khi gõ chữ nhanh (Debounce)
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
+    private lateinit var productApi: ProductApi
+    // TODO: Khai báo API của bạn tại đây khi kết nối Retrofit
+    // private lateinit var productApi: ProductApi
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_store, container, false)
@@ -44,15 +57,20 @@ class StoreFragment : Fragment() {
         layoutEmptySearch = view.findViewById(R.id.layoutEmptySearch)
 
         rvStoreProducts.layoutManager = GridLayoutManager(context, 2)
+        productApi = ProductRetrofit.api
+        loadProductsFromApi()
 
-        // Khởi động lấy danh sách không bộ lọc lần đầu từ cơ sở dữ liệu
-        loadProductsFromServer()
-
-        // Sự kiện tìm kiếm tức thời (Lọc cục bộ dựa trên dữ liệu đang hiển thị)
+        // Xử lý sự kiện gõ chữ có hoãn 500ms tránh spam băm nát server
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                filterProducts(s.toString())
+                searchRunnable?.let { searchHandler.removeCallbacks(it) }
+
+                searchRunnable = Runnable {
+                    currentKeyword = s.toString().trim().ifEmpty { null }
+                    loadProductsFromApi()
+                }
+                searchHandler.postDelayed(searchRunnable!!, 500)
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -61,7 +79,9 @@ class StoreFragment : Fragment() {
         btnClearFilters.setOnClickListener {
             etSearch.text?.clear()
             etSearch.clearFocus()
-            loadProductsFromServer()
+            currentKeyword = null
+            resetAllFiltersState()
+            loadProductsFromApi()
         }
 
         btnFilter.setOnClickListener {
@@ -71,50 +91,65 @@ class StoreFragment : Fragment() {
         return view
     }
 
-    // Gửi tham số request API lấy dữ liệu thực tế từ hệ thống Spring Boot
-    private fun loadProductsFromServer(
-        gender: String? = null,
-        brandId: Int? = null,
-        minPrice: Double? = null,
-        maxPrice: Double? = null,
-        size: String? = null
-    ) {
+    private fun loadProductsFromApi() {
+        // 1. Trạng thái chuẩn bị: Bật hiệu ứng chờ Shimmer, ẩn danh sách và ẩn thông báo trống đi
         shimmerLayout.startShimmer()
         shimmerLayout.visibility = View.VISIBLE
         rvStoreProducts.visibility = View.GONE
         layoutEmptySearch.visibility = View.GONE
 
-        ProductRetrofit.api.getProducts(gender, brandId, minPrice, maxPrice, size)
-            .enqueue(object : Callback<List<Product>> {
-                override fun onResponse(call: Call<List<Product>>, response: Response<List<Product>>) {
-                    if (response.isSuccessful && response.body() != null) {
-                        masterProductList = response.body()!!
-                        updateProductListUI(masterProductList)
+        // 2. Ánh xạ dữ liệu từ bộ lọc UI sang các tham số chuẩn gửi lên Backend
+        val genderParam = when (selectedGenderIdx) {
+            1 -> "MEN"
+            2 -> "WOMEN"
+            3 -> "UNISEX"
+            else -> null // Nếu chưa chọn -> truyền null để Backend lấy tất cả
+        }
+
+        val brandIdParam = if (selectedBrandIdx > 0) selectedBrandIdx else null
+
+        var minPriceParam: Double? = null
+        var maxPriceParam: Double? = null
+        when (selectedPriceRangeIdx) {
+            1 -> { minPriceParam = 0.0; maxPriceParam = 2000000.0 }
+            2 -> { minPriceParam = 2000000.0; maxPriceParam = 4000000.0 }
+            3 -> { minPriceParam = 4000000.0; maxPriceParam = 99999999.0 }
+        }
+
+        val sizeParam = selectedSizeVal?.toString()
+
+        // 3. GỌI API THẬT QUA RETROFIT
+        // Khi vừa vào màn hình, tất cả các tham số trên đều là null -> Backend sẽ chạy lệnh GET ALL PRODUCTS
+        productApi.getProducts(currentKeyword, genderParam, brandIdParam, minPriceParam, maxPriceParam, sizeParam)
+            .enqueue(object : retrofit2.Callback<List<Product>> {
+                override fun onResponse(call: retrofit2.Call<List<Product>>, response: retrofit2.Response<List<Product>>) {
+                    if (response.isSuccessful) {
+                        var productList = response.body() ?: listOf()
+
+                        // Xử lý sắp xếp tăng/giảm theo giá trực tiếp tại Client
+                        if (productList.isNotEmpty()) {
+                            productList = when (selectedSortOption) {
+                                1 -> productList.sortedBy { it.price } // Sắp xếp giá thấp -> cao
+                                2 -> productList.sortedByDescending { it.price } // Sắp xếp giá cao -> thấp
+                                else -> productList // Giữ nguyên thứ tự mặc định của API
+                            }
+                        }
+
+                        // Cập nhật lên giao diện danh sách sản phẩm lấy được
+                        updateProductListUI(productList)
                     } else {
-                        updateProductListUI(emptyList())
-                        Toast.makeText(context, "Lỗi lấy dữ liệu bộ lọc từ Server", Toast.LENGTH_SHORT).show()
+                        // Nếu lỗi Server (500, 404...), ẩn Shimmer và báo lỗi
+                        updateProductListUI(listOf())
+                        Toast.makeText(context, "Lỗi lấy dữ liệu từ máy chủ: ${response.code()}", Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                override fun onFailure(call: Call<List<Product>>, t: Throwable) {
-                    updateProductListUI(emptyList())
-                    Toast.makeText(context, "Lỗi kết nối mạng: ${t.message}", Toast.LENGTH_SHORT).show()
+                override fun onFailure(call: retrofit2.Call<List<Product>>, t: Throwable) {
+                    // Nếu mất mạng hoặc sập server không kết nối được
+                    updateProductListUI(listOf())
+                    Toast.makeText(context, "Không thể kết nối đến Server, vui lòng thử lại!", Toast.LENGTH_SHORT).show()
                 }
             })
-    }
-
-    private fun filterProducts(query: String) {
-        if (shimmerLayout.visibility == View.VISIBLE) return
-
-        if (query.isEmpty()) {
-            updateProductListUI(masterProductList)
-        } else {
-            val filteredList = masterProductList.filter { product ->
-                product.name.contains(query, ignoreCase = true) ||
-                        product.brandName.contains(query, ignoreCase = true)
-            }
-            updateProductListUI(filteredList)
-        }
     }
 
     private fun updateProductListUI(productList: List<Product>) {
@@ -131,6 +166,14 @@ class StoreFragment : Fragment() {
         }
     }
 
+    private fun resetAllFiltersState() {
+        selectedGenderIdx = 0
+        selectedBrandIdx = 0
+        selectedPriceRangeIdx = 0
+        selectedSortOption = 0
+        selectedSizeVal = null
+    }
+
     private fun showFilterBottomSheet() {
         val bottomSheetDialog = BottomSheetDialog(requireContext())
         val bottomSheetView = layoutInflater.inflate(R.layout.layout_filter_bottom_sheet, null)
@@ -140,86 +183,25 @@ class StoreFragment : Fragment() {
         val btnReset = bottomSheetView.findViewById<Button>(R.id.btnReset)
         val btnApply = bottomSheetView.findViewById<Button>(R.id.btnApply)
 
-        var selectedGender = 1
-        var selectedBrand = 1
-        var selectedPriceRange = 0
-        var selectedSortOption = 0
-        var selectedSize = 36
-
         val chipGenderMale = bottomSheetView.findViewById<TextView>(R.id.chipGenderMale)
         val chipGenderFemale = bottomSheetView.findViewById<TextView>(R.id.chipGenderFemale)
         val chipGenderUnisex = bottomSheetView.findViewById<TextView>(R.id.chipGenderUnisex)
-
-        fun updateGenderUI() {
-            val genderChips = listOf(chipGenderMale, chipGenderFemale, chipGenderUnisex)
-            genderChips.forEachIndexed { index, chip ->
-                if (index + 1 == selectedGender) {
-                    chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                    chip.setTextColor(resources.getColor(R.color.white, null))
-                } else {
-                    chip.setBackgroundResource(R.drawable.bg_chip_unselected)
-                    chip.setTextColor(resources.getColor(R.color.black, null))
-                }
-            }
-        }
+        val genderChips = listOf(chipGenderMale, chipGenderFemale, chipGenderUnisex)
 
         val chipBrandNike = bottomSheetView.findViewById<TextView>(R.id.chipBrandNike)
         val chipBrandAdidas = bottomSheetView.findViewById<TextView>(R.id.chipBrandAdidas)
         val chipBrandVans = bottomSheetView.findViewById<TextView>(R.id.chipBrandVans)
         val chipBrandConverse = bottomSheetView.findViewById<TextView>(R.id.chipBrandConverse)
         val chipBrandPuma = bottomSheetView.findViewById<TextView>(R.id.chipBrandPuma)
-
-        fun updateBrandUI() {
-            val brandChips = listOf(chipBrandNike, chipBrandAdidas, chipBrandVans, chipBrandConverse, chipBrandPuma)
-            brandChips.forEachIndexed { index, chip ->
-                if (index + 1 == selectedBrand) {
-                    chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                    chip.setTextColor(resources.getColor(R.color.white, null))
-                } else {
-                    chip.setBackgroundResource(R.drawable.bg_chip_unselected)
-                    chip.setTextColor(resources.getColor(R.color.black, null))
-                }
-            }
-        }
+        val brandChips = listOf(chipBrandNike, chipBrandAdidas, chipBrandVans, chipBrandConverse, chipBrandPuma)
 
         val chipPriceUnder2m = bottomSheetView.findViewById<TextView>(R.id.chipPriceUnder2m)
         val chipPrice2to4m = bottomSheetView.findViewById<TextView>(R.id.chipPrice2to4m)
         val chipPriceOver4m = bottomSheetView.findViewById<TextView>(R.id.chipPriceOver4m)
-
-        fun updatePriceRangeUI() {
-            val priceChips = listOf(chipPriceUnder2m, chipPrice2to4m, chipPriceOver4m)
-            priceChips.forEachIndexed { index, chip ->
-                if (index + 1 == selectedPriceRange) {
-                    chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                    chip.setTextColor(resources.getColor(R.color.white, null))
-                } else {
-                    chip.setBackgroundResource(R.drawable.bg_chip_unselected)
-                    chip.setTextColor(resources.getColor(R.color.black, null))
-                }
-            }
-        }
+        val priceChips = listOf(chipPriceUnder2m, chipPrice2to4m, chipPriceOver4m)
 
         val chipSortLowToHigh = bottomSheetView.findViewById<TextView>(R.id.chipSortLowToHigh)
         val chipSortHighToLow = bottomSheetView.findViewById<TextView>(R.id.chipSortHighToLow)
-
-        fun updateSortUI() {
-            if (selectedSortOption == 1) {
-                chipSortLowToHigh.setBackgroundResource(R.drawable.bg_chip_selected)
-                chipSortLowToHigh.setTextColor(resources.getColor(R.color.white, null))
-                chipSortHighToLow.setBackgroundResource(R.drawable.bg_chip_unselected)
-                chipSortHighToLow.setTextColor(resources.getColor(R.color.black, null))
-            } else if (selectedSortOption == 2) {
-                chipSortHighToLow.setBackgroundResource(R.drawable.bg_chip_selected)
-                chipSortHighToLow.setTextColor(resources.getColor(R.color.white, null))
-                chipSortLowToHigh.setBackgroundResource(R.drawable.bg_chip_unselected)
-                chipSortLowToHigh.setTextColor(resources.getColor(R.color.black, null))
-            } else {
-                chipSortLowToHigh.setBackgroundResource(R.drawable.bg_chip_unselected)
-                chipSortLowToHigh.setTextColor(resources.getColor(R.color.black, null))
-                chipSortHighToLow.setBackgroundResource(R.drawable.bg_chip_unselected)
-                chipSortHighToLow.setTextColor(resources.getColor(R.color.black, null))
-            }
-        }
 
         val sizeChips = listOf<TextView>(
             bottomSheetView.findViewById(R.id.chipSize36), bottomSheetView.findViewById(R.id.chipSize37),
@@ -228,10 +210,45 @@ class StoreFragment : Fragment() {
             bottomSheetView.findViewById(R.id.chipSize42), bottomSheetView.findViewById(R.id.chipSize43)
         )
 
-        fun updateSizeUI() {
+        fun updateAllFilterUI() {
+            genderChips.forEachIndexed { index, chip ->
+                if (index + 1 == selectedGenderIdx) {
+                    chip.setBackgroundResource(R.drawable.bg_chip_selected)
+                    chip.setTextColor(resources.getColor(R.color.white, null))
+                } else {
+                    chip.setBackgroundResource(R.drawable.bg_chip_unselected)
+                    chip.setTextColor(resources.getColor(R.color.black, null))
+                }
+            }
+
+            brandChips.forEachIndexed { index, chip ->
+                if (index + 1 == selectedBrandIdx) {
+                    chip.setBackgroundResource(R.drawable.bg_chip_selected)
+                    chip.setTextColor(resources.getColor(R.color.white, null))
+                } else {
+                    chip.setBackgroundResource(R.drawable.bg_chip_unselected)
+                    chip.setTextColor(resources.getColor(R.color.black, null))
+                }
+            }
+
+            priceChips.forEachIndexed { index, chip ->
+                if (index + 1 == selectedPriceRangeIdx) {
+                    chip.setBackgroundResource(R.drawable.bg_chip_selected)
+                    chip.setTextColor(resources.getColor(R.color.white, null))
+                } else {
+                    chip.setBackgroundResource(R.drawable.bg_chip_unselected)
+                    chip.setTextColor(resources.getColor(R.color.black, null))
+                }
+            }
+
+            chipSortLowToHigh.setBackgroundResource(if (selectedSortOption == 1) R.drawable.bg_chip_selected else R.drawable.bg_chip_unselected)
+            chipSortLowToHigh.setTextColor(resources.getColor(if (selectedSortOption == 1) R.color.white else R.color.black, null))
+            chipSortHighToLow.setBackgroundResource(if (selectedSortOption == 2) R.drawable.bg_chip_selected else R.drawable.bg_chip_unselected)
+            chipSortHighToLow.setTextColor(resources.getColor(if (selectedSortOption == 2) R.color.white else R.color.black, null))
+
             sizeChips.forEach { chip ->
                 val sizeVal = chip.text.toString().toInt()
-                if (sizeVal == selectedSize) {
+                if (sizeVal == selectedSizeVal) {
                     chip.setBackgroundResource(R.drawable.bg_chip_selected)
                     chip.setTextColor(resources.getColor(R.color.white, null))
                 } else {
@@ -241,85 +258,43 @@ class StoreFragment : Fragment() {
             }
         }
 
-        chipGenderMale.setOnClickListener { selectedGender = 1; updateGenderUI() }
-        chipGenderFemale.setOnClickListener { selectedGender = 2; updateGenderUI() }
-        chipGenderUnisex.setOnClickListener { selectedGender = 3; updateGenderUI() }
+        updateAllFilterUI()
 
-        chipBrandNike.setOnClickListener { selectedBrand = 1; updateBrandUI() }
-        chipBrandAdidas.setOnClickListener { selectedBrand = 2; updateBrandUI() }
-        chipBrandVans.setOnClickListener { selectedBrand = 3; updateBrandUI() }
-        chipBrandConverse.setOnClickListener { selectedBrand = 4; updateBrandUI() }
-        chipBrandPuma.setOnClickListener { selectedBrand = 5; updateBrandUI() }
+        chipGenderMale.setOnClickListener { selectedGenderIdx = if (selectedGenderIdx == 1) 0 else 1; updateAllFilterUI() }
+        chipGenderFemale.setOnClickListener { selectedGenderIdx = if (selectedGenderIdx == 2) 0 else 2; updateAllFilterUI() }
+        chipGenderUnisex.setOnClickListener { selectedGenderIdx = if (selectedGenderIdx == 3) 0 else 3; updateAllFilterUI() }
 
-        chipPriceUnder2m.setOnClickListener { selectedPriceRange = 1; updatePriceRangeUI() }
-        chipPrice2to4m.setOnClickListener { selectedPriceRange = 2; updatePriceRangeUI() }
-        chipPriceOver4m.setOnClickListener { selectedPriceRange = 3; updatePriceRangeUI() }
+        chipBrandNike.setOnClickListener { selectedBrandIdx = if (selectedBrandIdx == 1) 0 else 1; updateAllFilterUI() }
+        chipBrandAdidas.setOnClickListener { selectedBrandIdx = if (selectedBrandIdx == 2) 0 else 2; updateAllFilterUI() }
+        chipBrandVans.setOnClickListener { selectedBrandIdx = if (selectedBrandIdx == 3) 0 else 3; updateAllFilterUI() }
+        chipBrandConverse.setOnClickListener { selectedBrandIdx = if (selectedBrandIdx == 4) 0 else 4; updateAllFilterUI() }
+        chipBrandPuma.setOnClickListener { selectedBrandIdx = if (selectedBrandIdx == 5) 0 else 5; updateAllFilterUI() }
 
-        chipSortLowToHigh.setOnClickListener { selectedSortOption = 1; updateSortUI() }
-        chipSortHighToLow.setOnClickListener { selectedSortOption = 2; updateSortUI() }
+        chipPriceUnder2m.setOnClickListener { selectedPriceRangeIdx = if (selectedPriceRangeIdx == 1) 0 else 1; updateAllFilterUI() }
+        chipPrice2to4m.setOnClickListener { selectedPriceRangeIdx = if (selectedPriceRangeIdx == 2) 0 else 2; updateAllFilterUI() }
+        chipPriceOver4m.setOnClickListener { selectedPriceRangeIdx = if (selectedPriceRangeIdx == 3) 0 else 3; updateAllFilterUI() }
+
+        chipSortLowToHigh.setOnClickListener { selectedSortOption = if (selectedSortOption == 1) 0 else 1; updateAllFilterUI() }
+        chipSortHighToLow.setOnClickListener { selectedSortOption = if (selectedSortOption == 2) 0 else 2; updateAllFilterUI() }
 
         sizeChips.forEach { chip ->
             chip.setOnClickListener {
-                selectedSize = chip.text.toString().toInt()
-                updateSizeUI()
+                val sizeVal = chip.text.toString().toInt()
+                selectedSizeVal = if (selectedSizeVal == sizeVal) null else sizeVal
+                updateAllFilterUI()
             }
         }
 
         btnClose.setOnClickListener { bottomSheetDialog.dismiss() }
 
         btnReset.setOnClickListener {
-            selectedGender = 1
-            selectedBrand = 1
-            selectedPriceRange = 0
-            selectedSortOption = 0
-            selectedSize = 36
-
-            updateGenderUI()
-            updateBrandUI()
-            updatePriceRangeUI()
-            updateSortUI()
-            updateSizeUI()
-
-            bottomSheetDialog.dismiss()
-            loadProductsFromServer() // Tải lại toàn bộ dữ liệu gốc
+            resetAllFiltersState()
+            updateAllFilterUI()
         }
 
         btnApply.setOnClickListener {
             bottomSheetDialog.dismiss()
-
-            // Map đổi giới tính sang cấu trúc ENUM phù hợp với database
-            val genderParam = when (selectedGender) {
-                1 -> "MEN"
-                2 -> "WOMEN"
-                3 -> "UNISEX"
-                else -> null
-            }
-
-            // ID thương hiệu từ 1 -> 5 tương thích chính xác auto-increment trong bảng brand của bạn
-            val brandIdParam = selectedBrand
-
-            // Phân bổ khoảng giá gửi lên Server
-            var minPriceParam: Double? = null
-            var maxPriceParam: Double? = null
-            when (selectedPriceRange) {
-                1 -> maxPriceParam = 2000000.0
-                2 -> {
-                    minPriceParam = 2000000.0
-                    maxPriceParam = 4000000.0
-                }
-                3 -> minPriceParam = 4000000.0
-            }
-
-            val sizeParam = selectedSize.toString()
-
-            // Thực thi gửi gói bộ lọc xuống Database
-            loadProductsFromServer(
-                gender = genderParam,
-                brandId = brandIdParam,
-                minPrice = minPriceParam,
-                maxPrice = maxPriceParam,
-                size = sizeParam
-            )
+            loadProductsFromApi()
         }
 
         bottomSheetDialog.show()
