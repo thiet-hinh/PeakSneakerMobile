@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#FCF8F8"
     android:fitsSystemWindows="true">
-    <!-- TOP APP BAR -->
+
     <LinearLayout
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
@@ -17,7 +17,8 @@
         android:background="#FCF8F8">
 
         <ImageView
-            android:id="@+id/btnBack" android:layout_width="24dp"
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_arrow_back"
             app:tint="#1C1B1B"/>
@@ -32,11 +33,9 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Spacer để căn giữa title -->
         <View android:layout_width="24dp" android:layout_height="24dp"/>
     </LinearLayout>
 
-    <!-- MAIN SCROLLABLE CONTENT -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -51,20 +50,19 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- 1. Hero Image Slider (Giả lập bằng FrameLayout) -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="320dp"
                 android:background="#F1EDEC">
 
                 <ImageView
+                    android:id="@+id/imgDetailProduct"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="32dp"
                     android:scaleType="centerInside"
-                    android:src="@drawable/banner_placeholder" /> <!-- Thay bằng ảnh giày của bạn -->
+                    android:src="@drawable/banner_placeholder" />
 
-                <!-- Pagination Dots -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -83,8 +81,8 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- 2. Product Info -->
                 <TextView
+                    android:id="@+id/tvDetailBrand"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="NIKE"
@@ -93,6 +91,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tvDetailName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nike Air Max Zoom Pegasus 38"
@@ -101,13 +100,11 @@
                     android:textStyle="bold"
                     android:layout_marginTop="4dp"/>
 
-                <!-- Ratings -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:layout_marginTop="8dp">
-                    <!-- Giả lập 5 sao -->
                     <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
                     <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
                     <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
@@ -115,6 +112,7 @@
                     <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star_half" app:tint="#F59E0B"/>
 
                     <TextView
+                        android:id="@+id/tvDetailRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -131,27 +129,32 @@
                         android:textColor="#747878"/>
                 </LinearLayout>
 
-                <!-- Prices -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="bottom"
                     android:layout_marginTop="16dp">
+
                     <TextView
+                        android:id="@+id/tvDetailPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="3.290.000đ"
                         android:textColor="#1C1B1B"
                         android:textSize="28sp"
                         android:textStyle="bold"/>
+
                     <TextView
+                        android:id="@+id/tvDetailOriginalPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:text="4.500.000đ"
                         android:textColor="#747878"
                         android:textSize="14sp"/>
+
                     <TextView
+                        android:id="@+id/tvDetailDiscount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -164,7 +167,6 @@
                         android:textStyle="bold"/>
                 </LinearLayout>
 
-                <!-- 3. Colors -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -179,14 +181,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:orientation="horizontal">
-                    <!-- Giả lập các ô màu -->
                     <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_red" android:layout_marginEnd="16dp"/>
                     <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_black" android:layout_marginEnd="16dp"/>
                     <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_blue" android:layout_marginEnd="16dp"/>
                     <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_gray"/>
                 </LinearLayout>
 
-                <!-- 4. Sizes -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -211,27 +211,21 @@
                         android:drawablePadding="4dp"/>
                 </RelativeLayout>
 
-                <!-- Size Grid -->
                 <GridLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:columnCount="4">
-
-                    <!-- Row 1 -->
                     <TextView android:text="38" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
                     <TextView android:text="39" style="@style/SizeChipStyle" android:background="@drawable/bg_size_selected"/>
                     <TextView android:text="40" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
                     <TextView android:text="41" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
-
-                    <!-- Row 2 -->
                     <TextView android:text="42" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
                     <TextView android:text="43" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
                     <TextView android:text="44" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected" android:alpha="0.4"/>
                     <TextView android:text="45" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
                 </GridLayout>
 
-                <!-- 5. Description -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -240,12 +234,14 @@
                     android:textColor="#1C1B1B"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
+
                 <TextView
+                    android:id="@+id/tvDetailDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:lineSpacingExtra="4dp"
-                    android:text="Nike Air Max Zoom Pegasus 38 tiếp tục mang đến sự thoải mái tối ưu với đệm Zoom Air phản hồi cực tốt. Thiết kế thân giày bằng lưới thoáng khí giúp đôi chân luôn khô ráo trong suốt quá trình tập luyện cường độ cao. Phong cách thể thao hiện đại, dễ dàng phối hợp với nhiều trang phục khác nhau."
+                    android:text="Mô tả sản phẩm sẽ tải từ database..."
                     android:textColor="#444748"
                     android:textSize="14sp"/>
 
@@ -256,7 +252,6 @@
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="24dp"/>
 
-                <!-- 6. Specifications -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -266,14 +261,11 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Spec Items -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="8dp">
                     <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Kiểu dáng" android:textColor="#747878"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cổ thấp (Low-top)" android:textColor="#1C1B1B" android:textStyle="bold"/>
                 </LinearLayout>
-                <!-- Thêm các Spec khác tương tự -->
 
-                <!-- 7. Reviews -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -297,7 +289,6 @@
                         android:textStyle="bold"/>
                 </RelativeLayout>
 
-                <!-- Review Card 1 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -307,16 +298,13 @@
                     android:layout_marginBottom="12dp">
 
                     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <!-- Avatar giả lập -->
                         <TextView android:id="@+id/avt1" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_circle_blue_light" android:text="T" android:gravity="center" android:textColor="#1E4C5F" android:textStyle="bold" android:layout_marginEnd="12dp"/>
                         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/avt1" android:orientation="vertical">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trần Minh Quân" android:textColor="#1C1B1B" android:textStyle="bold" android:textSize="12sp"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15/10/2023" android:textColor="#747878" android:textSize="10sp"/>
                         </LinearLayout>
-                        <!-- Stars -->
                         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true">
                             <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@drawable/ic_star" app:tint="#F59E0B"/>
-                            <!-- 4 sao nữa -->
                         </LinearLayout>
                     </RelativeLayout>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Giày đi rất êm, ôm chân và thoáng khí. Giao hàng nhanh, đóng gói cẩn thận. Rất đáng tiền!" android:textColor="#444748" android:textSize="14sp"/>
@@ -326,7 +314,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- BOTTOM ACTION BAR (Cố định ở dưới cùng) -->
     <LinearLayout
         android:id="@+id/bottomActionBar"
         android:layout_width="match_parent"
