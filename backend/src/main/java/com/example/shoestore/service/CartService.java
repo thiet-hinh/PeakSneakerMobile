@@ -28,10 +28,5 @@ public class CartService {
                     return cartRepository.save(cart);
                 });
     }
-
-    @Transactional
-    public void deleteById(Integer id) {
-        cartRepository.deleteById(id);
-    }
 }
 

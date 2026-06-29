@@ -1,10 +1,13 @@
 package com.example.shoestore.controller;
 
+import com.example.shoestore.dto.request.PlaceOrderRequest;
 import com.example.shoestore.dto.response.OrderDetailResponse;
 import com.example.shoestore.dto.response.OrderResponse;
+import com.example.shoestore.dto.response.PlaceOrderResponse;
 import com.example.shoestore.enums.OrderStatus;
 import com.example.shoestore.service.OrdersService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,5 +34,20 @@ public class OrderController {
     public ResponseEntity<OrderDetailResponse> updateOrderStatus(@PathVariable Integer orderId, @RequestParam OrderStatus status) {
         ordersService.updateStatus(orderId, status);
         return ResponseEntity.ok(ordersService.getOrderDetail(orderId));
+    }
+
+    @PostMapping("/place-order")
+    public ResponseEntity<PlaceOrderResponse> placeOrder(
+            @RequestBody PlaceOrderRequest request) {
+
+        try {
+            PlaceOrderResponse response = ordersService.placeOrder(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            PlaceOrderResponse errorResponse = PlaceOrderResponse.builder()
+                    .message(e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 }

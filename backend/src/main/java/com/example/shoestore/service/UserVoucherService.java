@@ -21,18 +21,11 @@ public class UserVoucherService {
                 .orElseThrow(() -> new RuntimeException("UserVoucher not found with id: " + id));
     }
 
-    public List<UserVoucher> findByUserIdAndIsUsedFalse(Integer userId) {
-        return userVoucherRepository.findByUserIdAndIsUsedFalse(userId);
-    }
-
     public UserVoucher findByUserIdAndVoucherId(Integer userId, Integer voucherId) {
         return userVoucherRepository.findByUserIdAndVoucherId(userId, voucherId)
                 .orElseThrow(() -> new RuntimeException("UserVoucher not found with userId: " + userId + " and voucherId: " + voucherId));
     }
 
-    public boolean existsByUserIdAndVoucherIdAndIsUsedFalse(Integer userId, Integer voucherId) {
-        return userVoucherRepository.existsByUserIdAndVoucherIdAndIsUsedFalse(userId, voucherId);
-    }
 
     public boolean hasUsedVoucher(Integer userId, Integer voucherId) {
         return userVoucherRepository.existsByUserIdAndVoucherIdAndIsUsedTrue(userId, voucherId);

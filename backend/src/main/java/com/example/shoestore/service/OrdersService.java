@@ -1,11 +1,14 @@
 package com.example.shoestore.service;
 
-import com.example.shoestore.dto.response.OrderDetailResponse;
-import com.example.shoestore.dto.response.OrderItemDetailResponse;
-import com.example.shoestore.dto.response.OrderResponse;
+import com.example.shoestore.dto.request.PlaceOrderRequest;
+import com.example.shoestore.dto.response.*;
 import com.example.shoestore.entity.*;
+import com.example.shoestore.enums.DeliveryMethod;
 import com.example.shoestore.enums.OrderStatus;
+import com.example.shoestore.enums.PaymentMethod;
+import com.example.shoestore.enums.PaymentStatus;
 import com.example.shoestore.repository.ImageRepository;
+import com.example.shoestore.repository.OrderItemRepository;
 import com.example.shoestore.repository.OrderRepository;
 import com.example.shoestore.thirdparty.cloudinary.CloudinaryService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,6 +36,14 @@ public class OrdersService {
     private final CloudinaryService cloudinaryService;
     private final ImageRepository imageRepository;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final OrderItemRepository orderItemRepository;
+
+    private final UserService userService;
+    private final CartItemService cartItemService;
+    private final AddressService addressService;
+    private final VoucherService voucherService;
+    private final UserVoucherService userVoucherService;
+    private final PaymentService paymentService;
 
     public List<OrderResponse> getOrderResponsesByUserAndStatus(Integer userId, String status) {
         List<Order> orders;
@@ -127,5 +139,141 @@ public class OrdersService {
 
         order.setStatus(status);
         return orderRepository.save(order);
+    }
+
+
+    @Transactional
+    public PlaceOrderResponse placeOrder(PlaceOrderRequest request) {
+        User user = userService.findById(request.getUserId());
+
+        List<CartItem> cartItems = cartItemService.findByUserId(request.getUserId()).stream()
+                .filter(item -> request.getSelectedCartItemIds().contains(item.getId())).toList();
+
+        if (cartItems.size() != request.getSelectedCartItemIds().size()) {
+            throw new RuntimeException("Sản phẩm trong giỏ hàng không hợp lệ hoặc đã bị thay đổi.");
+        }
+
+        AddressResponse address = addressService.findDefaultByUserId(request.getUserId());
+        BigDecimal subtotal = BigDecimal.ZERO;
+
+        for (CartItem cartItem : cartItems) {
+            ProductVariant variant = cartItem.getProductVariant();
+            if (variant.getStockQuantity() < cartItem.getQuantity()) {
+                throw new RuntimeException("Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng.");
+            }
+            BigDecimal unitPrice = variant.getProduct().getPrice();
+            subtotal = subtotal.add(unitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        }
+
+        Voucher voucher = null;
+        BigDecimal discountAmount = BigDecimal.ZERO;
+
+        if (request.getVoucherCode() != null && !request.getVoucherCode().isBlank()) {
+            voucher = voucherService.findByCode(request.getVoucherCode());
+            discountAmount = voucher.getDiscountValue();
+        }
+
+        BigDecimal shippingFee = request.getDeliveryMethod() == DeliveryMethod.FAST ? BigDecimal.valueOf(35000) : BigDecimal.ZERO;
+
+        Order order = createOrder(request, user, address, voucher, subtotal, shippingFee, discountAmount);
+        order = orderRepository.save(order);
+
+        createOrderItems(order, cartItems);
+
+        if (voucher != null) {
+            applyVoucher(user, voucher, order);
+        }
+
+        createPayment(order, request);
+        removeCartItems(cartItems);
+
+        return PlaceOrderResponse.builder()
+                .orderCode(String.valueOf(order.getId()))
+                .estimatedDeliveryDate(order.getExpectedDate().toLocalDate())
+                .paymentMethod(request.getPaymentMethod().name())
+                .build();
+    }
+
+    private Order createOrder(PlaceOrderRequest request, User user, AddressResponse address, Voucher voucher, BigDecimal subtotal, BigDecimal shippingFee, BigDecimal discountAmount) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expectedDate = now.plusDays(shippingFee.compareTo(BigDecimal.ZERO) == 0 ? 7 : 3);
+        BigDecimal finalAmount = subtotal.add(shippingFee).subtract(discountAmount);
+
+        return Order.builder()
+                .user(user)
+                .subtotalAmount(subtotal)
+                .discountAmount(discountAmount)
+                .shippingFee(shippingFee)
+                .finalAmount(finalAmount)
+                .shippingName(address.getUserName())
+                .shippingPhone(address.getPhone())
+                .shippingProvince(address.getProvinceName())
+                .shippingDistrict(address.getDistrictName())
+                .shippingWard(address.getWardName())
+                .shippingStreet(address.getStreetDetail())
+                .status(OrderStatus.PROCESSING)
+                .voucherId(voucher == null ? null : voucher.getId())
+                .orderDate(now)
+                .expectedDate(expectedDate)
+                .build();
+    }
+
+    private void createOrderItems(Order order, List<CartItem> cartItems) {
+        for (CartItem cartItem : cartItems) {
+            ProductVariant variant = cartItem.getProductVariant();
+            Product product = variant.getProduct();
+            BigDecimal unitPrice = product.getPrice();
+            BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+
+            OrderItem orderItem = OrderItem.builder()
+                    .order(order)
+                    .productVariant(variant)
+                    .productName(product.getName())
+                    .variantName("Color:" + variant.getColor() + ", Size:" + variant.getSize())
+                    .quantity(cartItem.getQuantity())
+                    .unitPrice(unitPrice)
+                    .subtotal(subtotal)
+                    .build();
+
+            orderItemRepository.save(orderItem);
+            productVariantService.decreaseStock(variant.getId(), cartItem.getQuantity());
+        }
+    }
+
+    private void applyVoucher(User user, Voucher voucher, Order order) {
+        UserVoucher userVoucher;
+        try {
+            userVoucher = userVoucherService.findByUserIdAndVoucherId(user.getId(), voucher.getId());
+            if (Boolean.TRUE.equals(userVoucher.getIsUsed())) throw new RuntimeException("Voucher đã được sử dụng.");
+        } catch (RuntimeException e) {
+            userVoucher = userVoucherService.save(UserVoucher.builder().user(user).voucher(voucher).isUsed(false).build());
+        }
+        userVoucherService.markAsUsed(userVoucher.getId(), order);
+        voucherService.incrementUsedCount(voucher.getId());
+    }
+
+    private void createPayment(Order order, PlaceOrderRequest request) {
+        PaymentMethod paymentMethod = request.getPaymentMethod();
+        if (paymentMethod == null) {
+            throw new RuntimeException("Phương thức thanh toán không hợp lệ.");
+        }
+
+        boolean isVnPay = paymentMethod == PaymentMethod.VNPAY;
+        Payment payment = Payment.builder()
+                .order(order)
+                .amount(order.getFinalAmount())
+                .paymentMethod(paymentMethod)
+                .paymentStatus(isVnPay ? PaymentStatus.PAID : PaymentStatus.PENDING)
+                .transactionId(null)
+                .paidAt(isVnPay ? LocalDateTime.now() : null)
+                .build();
+
+        paymentService.save(payment);
+    }
+
+    private void removeCartItems(List<CartItem> cartItems) {
+        for (CartItem cartItem : cartItems) {
+            cartItemService.removeItem(cartItem.getId());
+        }
     }
 }

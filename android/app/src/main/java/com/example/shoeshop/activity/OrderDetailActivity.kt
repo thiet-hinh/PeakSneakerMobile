@@ -28,23 +28,14 @@ class OrderDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = OrderDetailActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        findViewById<TextView>(R.id.tvTitle).text =
-            intent.getStringExtra("title") ?: "Chi tiết đơn hàng"
-
-        findViewById<ImageView>(R.id.btnBack).setOnClickListener {
-            finish()
-        }
-
+        findViewById<TextView>(R.id.tvTitle).text = intent.getStringExtra("title") ?: "Chi tiết đơn hàng"
+        findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
         orderId = intent.getStringExtra("ORDER_ID")!!.toInt()
-
         adapter = OrderProductAdapter()
         binding.rvProducts.layoutManager = LinearLayoutManager(this)
         binding.rvProducts.adapter = adapter
-
         loadData()
     }
 
@@ -53,12 +44,11 @@ class OrderDetailActivity : AppCompatActivity() {
             try {
                 val response = OrderRetrofit.api.getOrderDetail(orderId)
                 order = response
-
                 binding.tvSubtotal.text = formatPrice(order.subtotal)
                 binding.tvShippingFee.text = if (order.shippingFee == 0.0) "Phí vận chuyển: Miễn phí" else "Phí vận chuyển: ${formatPrice(order.shippingFee)}"
                 binding.tvAddress.text = order.shippingAddress
                 binding.tvTotal.text = formatPrice(order.finalAmount)
-                binding.tvDiscount.text = if(order.discountAmount>0) formatPrice(order.discountAmount) else "Không có"
+                binding.tvDiscount.text = if (order.discountAmount > 0) formatPrice(order.discountAmount) else "Không có"
                 adapter.submitList(order.items)
                 showCancelButton()
             } catch (e: Exception) {
@@ -97,9 +87,7 @@ class OrderDetailActivity : AppCompatActivity() {
     }
 
     override fun finish() {
-        if (orderChanged) {
-            setResult(Activity.RESULT_OK)
-        }
+        if (orderChanged) setResult(Activity.RESULT_OK)
         super.finish()
     }
 

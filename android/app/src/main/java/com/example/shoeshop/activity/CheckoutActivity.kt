@@ -13,10 +13,16 @@ import com.example.shoeshop.adapter.CheckoutItemAdapter
 import com.example.shoeshop.databinding.CheckoutActivityBinding
 import com.example.shoeshop.dto.request.ApplyVoucherRequest
 import com.example.shoeshop.dto.request.CheckoutPreviewRequest
+import com.example.shoeshop.dto.request.PlaceOrderRequest
 import com.example.shoeshop.dto.respone.CheckoutPreviewResponse
+import com.example.shoeshop.dto.respone.PlaceOrderResponse
+import com.example.shoeshop.enums.DeliveryMethod
+import com.example.shoeshop.enums.PaymentMethod
 import com.example.shoeshop.retrofit.CheckoutRetrofit
+import com.example.shoeshop.retrofit.OrderRetrofit
 import com.example.shoeshop.retrofit.VoucherRetrofit
 import com.example.shoeshop.utils.PrefManager
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,9 +39,13 @@ class CheckoutActivity : AppCompatActivity() {
     private var shippingFee = 35000.0
     private var discount = 0.0
 
-    private var voucherCode: String? = null
-    private var paymentMethod = "COD"
-    var userId = -1
+    private var finalAmount =0.0
+
+    private var voucherCode: String =""
+    private var paymentMethod = PaymentMethod.COD
+
+    private var deliveryMethod = DeliveryMethod.SAVE
+    private var userId = -1
 
     private val addressLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -74,11 +84,48 @@ class CheckoutActivity : AppCompatActivity() {
         setupShippingSelection()
         setupPaymentSelection()
         loadCheckoutPreview()
-
-        binding.btnPlaceOrder.setOnClickListener {
-            startActivity(Intent(this, OrderSuccessActivity::class.java))
-        }
         setupVoucher()
+        setupPlaceOrder()
+    }
+
+    private fun setupPlaceOrder() {
+        binding.btnPlaceOrder.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        OrderRetrofit.api.placeOrder(
+                            PlaceOrderRequest(
+                                userId = userId,
+                                selectedCartItemIds = selectedCartItemIds,
+                                voucherCode = voucherCode,
+                                paymentMethod = paymentMethod,
+                                deliveryMethod = deliveryMethod
+                            )
+                        )
+                    }
+
+                    if (response.isSuccessful) {
+                        response.body()?.let { body ->
+                            startActivity(Intent(this@CheckoutActivity, OrderSuccessActivity::class.java).apply {
+                                putExtra("order_code", body.orderCode)
+                                putExtra("payment_method", body.paymentMethod)
+                                putExtra("estimated_delivery_date", body.estimatedDeliveryDate)
+                            })
+                        }
+                    } else {
+                        try {
+                            val errorBody = response.errorBody()?.string()
+                            val errorResponse = Gson().fromJson(errorBody, PlaceOrderResponse::class.java)
+                            Toast.makeText(this@CheckoutActivity, errorResponse.message, Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(this@CheckoutActivity, "Đặt hàng thất bại, vui lòng thử lại!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("ORDER", "Place order error", e)
+                }
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -120,7 +167,7 @@ class CheckoutActivity : AppCompatActivity() {
 
         selectExpressShipping()
         selectCod()
-        updateTotal()
+        updateFinalAmount()
     }
 
     private fun setupShippingSelection() {
@@ -135,24 +182,26 @@ class CheckoutActivity : AppCompatActivity() {
 
     private fun selectExpressShipping() {
         shippingFee = 35000.0
+        deliveryMethod= DeliveryMethod.FAST
         binding.cardExpress.strokeWidth = 4
         binding.cardStandard.strokeWidth = 0
         binding.imgExpressCheck.visibility = View.VISIBLE
         binding.imgStandardCheck.visibility = View.GONE
-        updateTotal()
+        updateFinalAmount()
     }
 
     private fun selectStandardShipping() {
         shippingFee = 0.0
+        deliveryMethod= DeliveryMethod.SAVE
         binding.cardExpress.strokeWidth = 0
         binding.cardStandard.strokeWidth = 4
         binding.imgExpressCheck.visibility = View.GONE
         binding.imgStandardCheck.visibility = View.VISIBLE
-        updateTotal()
+        updateFinalAmount()
     }
 
     private fun selectCod() {
-        paymentMethod = "COD"
+        paymentMethod = PaymentMethod.COD
         binding.cardCod.strokeWidth = 4
         binding.cardVnpay.strokeWidth = 0
         binding.imgCodSelected.visibility = View.VISIBLE
@@ -160,22 +209,22 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun selectVnpay() {
-        paymentMethod = "VNPAY"
+        paymentMethod = PaymentMethod.VNPAY
         binding.cardCod.strokeWidth = 0
         binding.cardVnpay.strokeWidth = 4
         binding.imgCodSelected.visibility = View.GONE
         binding.imgVnpaySelected.visibility = View.VISIBLE
     }
 
-    private fun updateTotal() {
-        val total = subtotal + shippingFee - discount
+    private fun updateFinalAmount() {
+        finalAmount = subtotal + shippingFee - discount
         binding.tvSubtotal.text = "Tạm tính: ${formatPrice(subtotal)}"
         binding.tvShippingFee.text =
             if (shippingFee == 0.0) "Phí vận chuyển: Miễn phí" else "Phí vận chuyển: ${
                 formatPrice(shippingFee)
             }"
         binding.tvDiscount.text = "Giảm giá: -${formatPrice(discount)}"
-        binding.tvTotal.text = "Tổng cộng: ${formatPrice(total)}"
+        binding.tvTotal.text = "Tổng cộng: ${formatPrice(finalAmount)}"
     }
 
     private fun formatPrice(price: Double): String {
@@ -209,18 +258,18 @@ class CheckoutActivity : AppCompatActivity() {
 
                     if (body.success) {
                         discount = body.discountAmount
-                        voucherCode = body.code
+                        voucherCode = body.code!!
                     } else {
                         discount = 0.0
-                        voucherCode = null
+                        voucherCode = ""
                     }
-                    updateTotal()
+                    updateFinalAmount()
                     showMessage(body.message)
                 } catch (e: Exception) {
                     Log.e("Voucher", "Apply voucher failed", e)
                     discount = 0.0
-                    voucherCode = null
-                    updateTotal()
+                    voucherCode = ""
+                    updateFinalAmount()
                     showMessage(e.message ?: "Đã xảy ra lỗi")
                 }
             }
