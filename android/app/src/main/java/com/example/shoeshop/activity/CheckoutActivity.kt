@@ -11,11 +11,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shoeshop.adapter.CheckoutItemAdapter
 import com.example.shoeshop.databinding.CheckoutActivityBinding
+import com.example.shoeshop.dto.request.ApplyVoucherRequest
 import com.example.shoeshop.dto.request.CheckoutPreviewRequest
 import com.example.shoeshop.dto.respone.CheckoutPreviewResponse
 import com.example.shoeshop.retrofit.CheckoutRetrofit
+import com.example.shoeshop.retrofit.VoucherRetrofit
 import com.example.shoeshop.utils.PrefManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -28,6 +32,8 @@ class CheckoutActivity : AppCompatActivity() {
     private var subtotal = 0.0
     private var shippingFee = 35000.0
     private var discount = 0.0
+
+    private var voucherCode: String? = null
     private var paymentMethod = "COD"
     var userId = -1
 
@@ -72,6 +78,7 @@ class CheckoutActivity : AppCompatActivity() {
         binding.btnPlaceOrder.setOnClickListener {
             startActivity(Intent(this, OrderSuccessActivity::class.java))
         }
+        setupVoucher()
     }
 
     private fun setupRecyclerView() {
@@ -174,4 +181,58 @@ class CheckoutActivity : AppCompatActivity() {
     private fun formatPrice(price: Double): String {
         return NumberFormat.getNumberInstance(Locale("vi", "VN")).format(price) + "đ"
     }
+
+    private fun setupVoucher() {
+        binding.btnApplyVoucher.setOnClickListener {
+            val code = binding.edtVoucher.text.toString().trim()
+            if (code.isBlank()) {
+                showMessage("Vui lòng nhập mã giảm giá")
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                try {
+                    val response = VoucherRetrofit.api.applyVoucher(
+                        ApplyVoucherRequest(userId = userId, orderAmount = subtotal, voucherCode = code)
+                    )
+
+                    if (!response.isSuccessful) {
+                        showMessage("Không thể kết nối máy chủ")
+                        return@launch
+                    }
+
+                    val body = response.body()
+                    if (body == null) {
+                        showMessage("Không nhận được dữ liệu")
+                        return@launch
+                    }
+
+                    if (body.success) {
+                        discount = body.discountAmount
+                        voucherCode = body.code
+                    } else {
+                        discount = 0.0
+                        voucherCode = null
+                    }
+                    updateTotal()
+                    showMessage(body.message)
+                } catch (e: Exception) {
+                    Log.e("Voucher", "Apply voucher failed", e)
+                    discount = 0.0
+                    voucherCode = null
+                    updateTotal()
+                    showMessage(e.message ?: "Đã xảy ra lỗi")
+                }
+            }
+        }
+    }
+
+    private fun showMessage(message: String) {
+        try {
+            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("Toast", "Cannot show toast", e)
+        }
+    }
+
 }

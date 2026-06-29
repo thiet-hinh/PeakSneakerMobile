@@ -1,11 +1,14 @@
 package com.example.shoestore.service;
 
+import com.example.shoestore.dto.request.ApplyVoucherRequest;
+import com.example.shoestore.dto.response.ApplyVoucherResponse;
 import com.example.shoestore.entity.Voucher;
 import com.example.shoestore.repository.VoucherRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VoucherService {
     private final VoucherRepository voucherRepository;
+    private final UserVoucherService userVoucherService;
 
 
     public Voucher findById(Integer id) {
@@ -62,6 +66,57 @@ public class VoucherService {
         return voucherRepository.save(existing);
     }
 
+    public ApplyVoucherResponse applyVoucher(
+            ApplyVoucherRequest request) {
+
+        Voucher voucher = voucherRepository
+                .findByCode(request.getVoucherCode())
+                .orElse(null);
+
+        if (voucher == null) {
+            return fail("Voucher không tồn tại");
+        }
+
+        if (!Boolean.TRUE.equals(voucher.getIsActive())) {
+            return fail("Voucher đã bị khóa");
+        }
+
+        if (voucher.isNotStarted()) {
+            return fail("Voucher chưa đến thời gian sử dụng");
+        }
+
+        if (voucher.isExpired()) {
+            return fail("Voucher đã hết hạn");
+        }
+
+        if (voucher.isUsageLimitExceeded()) {
+            return fail("Voucher đã hết lượt sử dụng");
+        }
+
+        if (!voucher.isMinOrderSatisfied(request.getOrderAmount())) {
+            return fail(
+                    "Đơn hàng tối thiểu " +
+                            voucher.getMinOrderAmount()
+            );
+        }
+        if (userVoucherService.hasUsedVoucher(
+                request.getUserId(),
+                voucher.getId())) {
+
+            return fail("Bạn đã sử dụng voucher này");
+        }
+
+        BigDecimal discount =
+                voucher.calculateDiscount(request.getOrderAmount());
+
+        return ApplyVoucherResponse.builder()
+                .success(true)
+                .code(voucher.getCode())
+                .discountAmount(discount)
+                .message("Áp dụng voucher thành công")
+                .build();
+    }
+
     @Transactional
     public Voucher incrementUsedCount(Integer voucherId) {
 
@@ -84,34 +139,15 @@ public class VoucherService {
         return voucherRepository.save(voucher);
     }
 
-    @Transactional
-    public void setActive(Integer voucherId, Boolean isActive) {
 
-        Voucher voucher = findById(voucherId);
+    private ApplyVoucherResponse fail(String message) {
 
-        voucher.setIsActive(isActive);
-
-        voucherRepository.save(voucher);
-    }
-
-    public boolean isValid(Voucher voucher) {
-
-        LocalDateTime now = LocalDateTime.now();
-
-        if (!Boolean.TRUE.equals(voucher.getIsActive())) {
-            return false;
-        }
-        if (now.isBefore(voucher.getStartAt())) {
-            return false;
-        }
-        if (now.isAfter(voucher.getExpireAt())) {
-            return false;
-        }
-        if (voucher.getUsageLimit() > 0
-                && voucher.getUsedCount() >= voucher.getUsageLimit()) {
-            return false;
-        }
-        return true;
+        return ApplyVoucherResponse.builder()
+                .success(false)
+                .code("")
+                .discountAmount(BigDecimal.ZERO)
+                .message(message)
+                .build();
     }
 
 }

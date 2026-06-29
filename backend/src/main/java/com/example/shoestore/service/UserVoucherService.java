@@ -27,12 +27,15 @@ public class UserVoucherService {
 
     public UserVoucher findByUserIdAndVoucherId(Integer userId, Integer voucherId) {
         return userVoucherRepository.findByUserIdAndVoucherId(userId, voucherId)
-                .orElseThrow(() -> new RuntimeException(
-                        "UserVoucher not found with userId: " + userId + " and voucherId: " + voucherId));
+                .orElseThrow(() -> new RuntimeException("UserVoucher not found with userId: " + userId + " and voucherId: " + voucherId));
     }
 
     public boolean existsByUserIdAndVoucherIdAndIsUsedFalse(Integer userId, Integer voucherId) {
         return userVoucherRepository.existsByUserIdAndVoucherIdAndIsUsedFalse(userId, voucherId);
+    }
+
+    public boolean hasUsedVoucher(Integer userId, Integer voucherId) {
+        return userVoucherRepository.existsByUserIdAndVoucherIdAndIsUsedTrue(userId, voucherId);
     }
 
     @Transactional
@@ -42,43 +45,33 @@ public class UserVoucherService {
 
     @Transactional
     public UserVoucher update(Integer id, UserVoucher updated) {
-
         UserVoucher existing = findById(id);
-
         existing.setUser(updated.getUser());
         existing.setVoucher(updated.getVoucher());
         existing.setOrder(updated.getOrder());
         existing.setIsUsed(updated.getIsUsed());
         existing.setUsedAt(updated.getUsedAt());
-
         return userVoucherRepository.save(existing);
     }
 
     @Transactional
     public UserVoucher markAsUsed(Integer userVoucherId, Order order) {
-
         UserVoucher userVoucher = findById(userVoucherId);
-
         if (Boolean.TRUE.equals(userVoucher.getIsUsed())) {
             throw new RuntimeException("Voucher already used");
         }
-
         userVoucher.setIsUsed(true);
         userVoucher.setUsedAt(LocalDateTime.now());
         userVoucher.setOrder(order);
-
         return userVoucherRepository.save(userVoucher);
     }
 
     @Transactional
     public UserVoucher markAsUnused(Integer userVoucherId) {
-
         UserVoucher userVoucher = findById(userVoucherId);
-
         userVoucher.setIsUsed(false);
         userVoucher.setUsedAt(null);
         userVoucher.setOrder(null);
-
         return userVoucherRepository.save(userVoucher);
     }
 }

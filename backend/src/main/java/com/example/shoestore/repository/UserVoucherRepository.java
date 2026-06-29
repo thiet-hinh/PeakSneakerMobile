@@ -8,11 +8,11 @@ import java.util.Optional;
 
 public interface UserVoucherRepository extends JpaRepository<UserVoucher, Integer> {
 
-    List<UserVoucher> findByUserId(Integer userId);
-
     List<UserVoucher> findByUserIdAndIsUsedFalse(Integer userId);
 
     Optional<UserVoucher> findByUserIdAndVoucherId(Integer userId, Integer voucherId);
 
     boolean existsByUserIdAndVoucherIdAndIsUsedFalse(Integer userId, Integer voucherId);
+
+    boolean existsByUserIdAndVoucherIdAndIsUsedTrue(Integer userId, Integer voucherId);
 }

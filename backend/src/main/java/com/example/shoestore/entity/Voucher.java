@@ -70,4 +70,39 @@ public class Voucher {
             createdAt = LocalDateTime.now();
         }
     }
+
+
+    public boolean isExpired() {
+        return expireAt.isBefore(LocalDateTime.now());
+    }
+
+    public boolean isNotStarted() {
+        return startAt.isAfter(LocalDateTime.now());
+    }
+
+    public boolean isUsageLimitExceeded() {
+        return usageLimit != null && usedCount >= usageLimit;
+    }
+
+    public boolean isMinOrderSatisfied(BigDecimal orderAmount) {
+        if (minOrderAmount == null) {
+            return true;
+        }
+
+        return orderAmount.compareTo(minOrderAmount) >= 0;
+    }
+
+    public BigDecimal calculateDiscount(BigDecimal orderAmount) {
+
+        if (discountType == DiscountType.FIXED) {
+            return discountValue.min(orderAmount);
+        }
+        BigDecimal discount = orderAmount.multiply(discountValue).divide(BigDecimal.valueOf(100));
+
+        if (maxDiscountAmount != null && discount.compareTo(maxDiscountAmount) > 0) {
+            discount = maxDiscountAmount;
+        }
+
+        return discount;
+    }
 }
