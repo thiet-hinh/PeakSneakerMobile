@@ -69,18 +69,6 @@ public class OrdersService {
         return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
     }
 
-    @Transactional
-    public Order placeOrder(Order order) {
-        order.setStatus(OrderStatus.PROCESSING);
-        order.setOrderDate(LocalDateTime.now());
-        order.getOrderItems().forEach(item -> {
-            if (item.getProductVariant() != null) {
-                productVariantService.decreaseStock(item.getProductVariant().getId(), item.getQuantity());
-            }
-        });
-        return orderRepository.save(order);
-    }
-
     public OrderDetailResponse getOrderDetail(Integer orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
 

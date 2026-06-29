@@ -58,13 +58,4 @@ public class UserVoucherService {
         userVoucher.setOrder(order);
         return userVoucherRepository.save(userVoucher);
     }
-
-    @Transactional
-    public UserVoucher markAsUnused(Integer userVoucherId) {
-        UserVoucher userVoucher = findById(userVoucherId);
-        userVoucher.setIsUsed(false);
-        userVoucher.setUsedAt(null);
-        userVoucher.setOrder(null);
-        return userVoucherRepository.save(userVoucher);
-    }
 }

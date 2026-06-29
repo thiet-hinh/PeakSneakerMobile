@@ -21,71 +21,43 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
 class OrderFragment : Fragment(R.layout.fragment_order) {
-
     private lateinit var adapter: OrderAdapter
     private lateinit var layoutEmpty: LinearLayout
     private lateinit var tabOrder: TabLayout
-
     private var userId = -1
 
-    private val orderDetailLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-
-            if (result.resultCode == Activity.RESULT_OK) {
-                reloadCurrentTab()
-            }
-
-        }
+    private val orderDetailLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) reloadCurrentTab()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         userId = PrefManager.getUser(requireContext())?.id ?: -1
-
         tabOrder = view.findViewById(R.id.tabOrder)
         val recyclerViewOrder = view.findViewById<RecyclerView>(R.id.recyclerViewOrder)
         layoutEmpty = view.findViewById(R.id.layoutEmpty)
-
         adapter = OrderAdapter { order ->
-            val intent = Intent(requireContext(), OrderDetailActivity::class.java)
-            intent.putExtra("ORDER_ID", order.orderCode)
+            val intent = Intent(requireContext(), OrderDetailActivity::class.java).apply { putExtra("ORDER_ID", order.orderCode) }
             orderDetailLauncher.launch(intent)
-
         }
-
         recyclerViewOrder.layoutManager = LinearLayoutManager(requireContext())
         recyclerViewOrder.adapter = adapter
-
         tabOrder.addTab(tabOrder.newTab().setText("Chờ xử lý"))
         tabOrder.addTab(tabOrder.newTab().setText("Đang giao"))
         tabOrder.addTab(tabOrder.newTab().setText("Đã giao"))
-
         tabOrder.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                reloadCurrentTab()
-            }
-
+            override fun onTabSelected(tab: TabLayout.Tab) { reloadCurrentTab() }
             override fun onTabUnselected(tab: TabLayout.Tab) {}
-
             override fun onTabReselected(tab: TabLayout.Tab) {}
-
         })
-
         reloadCurrentTab()
     }
 
     private fun reloadCurrentTab() {
-
         if (userId == -1) {
-            Toast.makeText(
-                requireContext(),
-                "Không tìm thấy thông tin người dùng",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show()
             return
         }
-
         when (tabOrder.selectedTabPosition) {
             0 -> showOrders(userId, OrderStatus.PROCESSING)
             1 -> showOrders(userId, OrderStatus.SHIPPING)

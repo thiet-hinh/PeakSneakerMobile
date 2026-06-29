@@ -28,10 +28,6 @@ public class CartItemService {
     private final ImageRepository imageRepository;
     private final CloudinaryService cloudinaryService;
 
-    public List<CartItem> findByCartId(Integer cartId) {
-        return cartItemRepository.findByCartId(cartId);
-    }
-
     public List<CartItem> findByUserId(Integer userId) {
         Cart cart = cartService.findByUserId(userId);
         return cartItemRepository.findByCartId(cart.getId());

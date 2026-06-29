@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.shoeshop.databinding.ItemOrderProductBinding
 import com.example.shoeshop.dto.respone.OrderItemDetailResponse
-import com.example.shoeshop.dto.respone.OrderProduct
 import java.text.NumberFormat
 import java.util.Locale
 

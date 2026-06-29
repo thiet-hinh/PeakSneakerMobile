@@ -17,16 +17,5 @@ public class CartService {
         return cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Cart not found for user: " + userId));
     }
-
-
-    @Transactional
-    public Cart getOrCreate(User user) {
-        return cartRepository.findByUserId(user.getId())
-                .orElseGet(() -> {
-                    Cart cart = Cart.builder().user(user).build();
-                    user.setCart(cart);
-                    return cartRepository.save(cart);
-                });
-    }
 }
 

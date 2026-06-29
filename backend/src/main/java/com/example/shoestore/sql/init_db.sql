@@ -11,7 +11,7 @@
  Target Server Version : 80410 (8.4.10)
  File Encoding         : 65001
 
- Date: 28/06/2026 00:26:55
+ Date: 29/06/2026 22:48:29
 */
 
 SET NAMES utf8mb4;
@@ -42,7 +42,7 @@ CREATE TABLE `address`  (
 -- ----------------------------
 -- Records of address
 -- ----------------------------
-INSERT INTO `address` VALUES (1, 2017, 'Huyện Tân Uyên', 264, 'Lai Châu', 70708, 'Xã Tà Mít', 'tan', 'hinh thiet', '08', 1, 2);
+INSERT INTO `address` VALUES (1, 2017, 'Huyện Tân Uyên', 264, 'Lai Châu', 70708, 'Xã Tà Mít', 'tan', 'hinh thiet', '0866501453', 1, 2);
 
 -- ----------------------------
 -- Table structure for brand
@@ -97,11 +97,14 @@ CREATE TABLE `cart_item`  (
                               INDEX `fk_cart_item_variant`(`product_variant_id` ASC) USING BTREE,
                               CONSTRAINT `fk_cart_item_cart` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
                               CONSTRAINT `fk_cart_item_variant` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variant` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of cart_item
 -- ----------------------------
+INSERT INTO `cart_item` VALUES (1, 1, 2, 1);
+INSERT INTO `cart_item` VALUES (2, 2, 2, 4);
+INSERT INTO `cart_item` VALUES (3, 1, 2, 13);
 
 -- ----------------------------
 -- Table structure for category
@@ -192,11 +195,26 @@ CREATE TABLE `order_item`  (
                                INDEX `fk_order_item_variant`(`product_variant_id` ASC) USING BTREE,
                                CONSTRAINT `fk_order_item_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
                                CONSTRAINT `fk_order_item_variant` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variant` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of order_item
 -- ----------------------------
+INSERT INTO `order_item` VALUES (1, 'Nike Air Force 1 07', 'Color: White, Size: 40', 1, 2900000.00, 2900000.00, 1, 1);
+INSERT INTO `order_item` VALUES (2, 'Adidas Stan Smith', 'Color: White/Green, Size: 40', 1, 2600000.00, 2600000.00, 2, 8);
+INSERT INTO `order_item` VALUES (3, 'Vans Old Skool', 'Color: Black/White, Size: 40', 1, 1900000.00, 1900000.00, 3, 13);
+INSERT INTO `order_item` VALUES (4, 'Nike Air Zoom Pegasus 40', 'Color: Black/White, Size: 42', 1, 3150000.00, 3150000.00, 4, 4);
+INSERT INTO `order_item` VALUES (5, 'Puma RS-X Toys', 'Color: Multicolor, Size: 40', 1, 2100000.00, 2100000.00, 5, 28);
+INSERT INTO `order_item` VALUES (6, 'Converse Chuck Taylor All Star', 'Color: Black, Size: 41', 1, 1500000.00, 1500000.00, 6, 19);
+INSERT INTO `order_item` VALUES (7, 'Vans Slip-On Checkerboard', 'Color: Black/White Check, Size: 39', 1, 1530000.00, 1530000.00, 6, 16);
+INSERT INTO `order_item` VALUES (8, 'Nike Air Force 1 07', 'Color:White, Size:40', 1, 2900000.00, 2900000.00, 7, 1);
+INSERT INTO `order_item` VALUES (9, 'Nike Air Zoom Pegasus 40', 'Color:Black/White, Size:42', 2, 3150000.00, 6300000.00, 7, 4);
+INSERT INTO `order_item` VALUES (10, 'Nike Air Force 1 07', 'Color:White, Size:40', 1, 2900000.00, 2900000.00, 8, 1);
+INSERT INTO `order_item` VALUES (11, 'Nike Air Zoom Pegasus 40', 'Color:Black/White, Size:42', 2, 3150000.00, 6300000.00, 8, 4);
+INSERT INTO `order_item` VALUES (12, 'Nike Air Force 1 07', 'Color:White, Size:40', 1, 2900000.00, 2900000.00, 9, 1);
+INSERT INTO `order_item` VALUES (13, 'Nike Air Zoom Pegasus 40', 'Color:Black/White, Size:42', 2, 3150000.00, 6300000.00, 9, 4);
+INSERT INTO `order_item` VALUES (14, 'Nike Air Force 1 07', 'Color:White, Size:40', 1, 2900000.00, 2900000.00, 10, 1);
+INSERT INTO `order_item` VALUES (15, 'Nike Air Zoom Pegasus 40', 'Color:Black/White, Size:42', 2, 3150000.00, 6300000.00, 10, 4);
 
 -- ----------------------------
 -- Table structure for orders
@@ -225,11 +243,21 @@ CREATE TABLE `orders`  (
                            INDEX `fk_order_voucher`(`voucher_id` ASC) USING BTREE,
                            CONSTRAINT `fk_order_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
                            CONSTRAINT `FKrx5vk9ur428660yp19hw98nr2` FOREIGN KEY (`voucher_id`) REFERENCES `voucher` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
+INSERT INTO `orders` VALUES (1, 2900000.00, 0.00, 30000.00, 2930000.00, 'Giao giờ hành chính', 'hinh thiet', '0866501452', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'PROCESSING', 2, NULL, '2026-06-28 10:00:00', NULL);
+INSERT INTO `orders` VALUES (2, 2600000.00, 0.00, 30000.00, 2630000.00, '', 'hinh thiet', '0866501452', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'CANCELLED', 2, NULL, '2026-06-28 11:15:00', NULL);
+INSERT INTO `orders` VALUES (3, 1900000.00, 0.00, 30000.00, 1930000.00, 'Gọi trước khi giao', 'hinh thiet', '0866501452', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'SHIPPING', 2, NULL, '2026-06-27 09:00:00', NULL);
+INSERT INTO `orders` VALUES (4, 3150000.00, 0.00, 0.00, 3150000.00, 'Freeship', 'hinh thiet', '0866501452', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'SHIPPING', 2, NULL, '2026-06-27 14:30:00', NULL);
+INSERT INTO `orders` VALUES (5, 2100000.00, 0.00, 30000.00, 2130000.00, 'Đơn hoàn thành', 'hinh thiet', '0866501452', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'DELIVERED', 2, NULL, '2026-06-25 08:00:00', '2026-06-27 10:00:00');
+INSERT INTO `orders` VALUES (6, 3030000.00, 0.00, 0.00, 3030000.00, 'Giao nhanh nha shop', 'hinh thiet', '0866501452', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'DELIVERED', 2, NULL, '2026-06-26 15:00:00', '2026-06-28 14:00:00');
+INSERT INTO `orders` VALUES (7, 9200000.00, 0.00, 35000.00, 9235000.00, NULL, 'hinh thiet', '0866501453', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'PROCESSING', 2, NULL, '2026-06-29 21:30:55', '2026-07-02 21:30:55');
+INSERT INTO `orders` VALUES (8, 9200000.00, 50000.00, 35000.00, 9185000.00, NULL, 'hinh thiet', '0866501453', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'PROCESSING', 2, 1, '2026-06-29 22:28:24', '2026-07-02 22:28:24');
+INSERT INTO `orders` VALUES (9, 9200000.00, 0.00, 35000.00, 9235000.00, NULL, 'hinh thiet', '0866501453', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'PROCESSING', 2, NULL, '2026-06-29 22:30:16', '2026-07-02 22:30:16');
+INSERT INTO `orders` VALUES (10, 9200000.00, 0.00, 35000.00, 9235000.00, NULL, 'hinh thiet', '0866501453', 'Lai Châu', 'Huyện Tân Uyên', 'Xã Tà Mít', 'tan', 'PROCESSING', 2, NULL, '2026-06-29 22:32:31', '2026-07-02 22:32:31');
 
 -- ----------------------------
 -- Table structure for payment
@@ -247,11 +275,21 @@ CREATE TABLE `payment`  (
                             PRIMARY KEY (`id`) USING BTREE,
                             UNIQUE INDEX `order_id`(`order_id` ASC) USING BTREE,
                             CONSTRAINT `fk_payment_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of payment
 -- ----------------------------
+INSERT INTO `payment` VALUES (1, 2930000.00, '2026-06-28 10:00:05', NULL, 'COD', 'PENDING', NULL, 1);
+INSERT INTO `payment` VALUES (2, 2630000.00, '2026-06-28 11:15:10', NULL, 'VNPAY', 'PENDING', 'VNPAY12345678', 2);
+INSERT INTO `payment` VALUES (3, 1930000.00, '2026-06-27 09:00:10', '2026-06-27 09:05:00', 'VNPAY', 'PAID', 'VNPAY88889999', 3);
+INSERT INTO `payment` VALUES (4, 3150000.00, '2026-06-27 14:30:05', NULL, 'COD', 'PENDING', NULL, 4);
+INSERT INTO `payment` VALUES (5, 2130000.00, '2026-06-25 08:00:10', '2026-06-27 10:02:00', 'COD', 'PAID', NULL, 5);
+INSERT INTO `payment` VALUES (6, 3030000.00, '2026-06-26 15:01:00', '2026-06-26 15:04:22', 'VNPAY', 'PAID', 'VNPAY77778888', 6);
+INSERT INTO `payment` VALUES (7, 9235000.00, '2026-06-29 21:30:55', NULL, 'COD', 'PENDING', NULL, 7);
+INSERT INTO `payment` VALUES (8, 9185000.00, '2026-06-29 22:28:24', NULL, 'COD', 'PENDING', NULL, 8);
+INSERT INTO `payment` VALUES (9, 9235000.00, '2026-06-29 22:30:16', NULL, 'COD', 'PENDING', NULL, 9);
+INSERT INTO `payment` VALUES (10, 9235000.00, '2026-06-29 22:32:31', NULL, 'COD', 'PENDING', NULL, 10);
 
 -- ----------------------------
 -- Table structure for product
@@ -312,14 +350,14 @@ CREATE TABLE `product_variant`  (
 -- ----------------------------
 -- Records of product_variant
 -- ----------------------------
-INSERT INTO `product_variant` VALUES (1, 'White', '40', 50, '2026-06-25 02:33:58', 1);
+INSERT INTO `product_variant` VALUES (1, 'White', '40', 48, '2026-06-25 02:33:58', 1);
 INSERT INTO `product_variant` VALUES (2, 'White', '41', 45, '2026-06-25 02:33:58', 1);
 INSERT INTO `product_variant` VALUES (3, 'Black', '40', 20, '2026-06-25 02:33:58', 1);
-INSERT INTO `product_variant` VALUES (4, 'Black/White', '42', 30, '2026-06-25 02:33:58', 2);
+INSERT INTO `product_variant` VALUES (4, 'Black/White', '42', 22, '2026-06-25 02:33:58', 2);
 INSERT INTO `product_variant` VALUES (5, 'Black/White', '43', 25, '2026-06-25 02:33:58', 2);
 INSERT INTO `product_variant` VALUES (6, 'Blue', '42', 15, '2026-06-25 02:33:58', 2);
 INSERT INTO `product_variant` VALUES (7, 'White/Green', '39', 40, '2026-06-25 02:33:58', 3);
-INSERT INTO `product_variant` VALUES (8, 'White/Green', '40', 60, '2026-06-25 02:33:58', 3);
+INSERT INTO `product_variant` VALUES (8, 'White/Green', '40', 63, '2026-06-25 02:33:58', 3);
 INSERT INTO `product_variant` VALUES (9, 'White/Navy', '39', 20, '2026-06-25 02:33:58', 3);
 INSERT INTO `product_variant` VALUES (10, 'Core Black', '37', 15, '2026-06-25 02:33:58', 4);
 INSERT INTO `product_variant` VALUES (11, 'Core Black', '38', 20, '2026-06-25 02:33:58', 4);
@@ -385,11 +423,12 @@ CREATE TABLE `user_voucher`  (
                                  CONSTRAINT `fk_user_voucher_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
                                  CONSTRAINT `fk_user_voucher_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
                                  CONSTRAINT `fk_user_voucher_voucher` FOREIGN KEY (`voucher_id`) REFERENCES `voucher` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_voucher
 -- ----------------------------
+INSERT INTO `user_voucher` VALUES (1, 2, 1, 8, 1, '2026-06-29 22:28:24', '2026-06-29 22:28:24');
 
 -- ----------------------------
 -- Table structure for users
@@ -436,10 +475,15 @@ CREATE TABLE `voucher`  (
                             `used_count` int NULL DEFAULT 0,
                             PRIMARY KEY (`id`) USING BTREE,
                             UNIQUE INDEX `code`(`code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of voucher
 -- ----------------------------
+INSERT INTO `voucher` VALUES (1, 'GIAMGIA50K', '2026-06-29 16:53:43', 'FIXED', 50000.00, '2100-06-20 23:59:59', 1, NULL, 500000.00, '2026-06-20 00:00:00', 1000, 1);
+INSERT INTO `voucher` VALUES (2, 'GIAMGIA100K', '2026-06-29 16:53:43', 'FIXED', 100000.00, '2100-06-20 23:59:59', 1, NULL, 500000.00, '2026-06-20 00:00:00', 1000, 0);
+INSERT INTO `voucher` VALUES (3, 'GIAMGIA150K', '2026-06-29 16:53:43', 'FIXED', 150000.00, '2100-06-20 23:59:59', 1, NULL, 1000000.00, '2026-06-20 00:00:00', 1000, 0);
+INSERT INTO `voucher` VALUES (4, 'GIAMGIA200K', '2026-06-29 16:53:43', 'FIXED', 200000.00, '2100-06-20 23:59:59', 1, NULL, 1000000.00, '2026-06-20 00:00:00', 1000, 0);
+INSERT INTO `voucher` VALUES (5, 'GIAMGIA250K', '2026-06-29 16:53:43', 'FIXED', 250000.00, '2100-06-20 23:59:59', 1, NULL, 1000000.00, '2026-06-20 00:00:00', 1000, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;
