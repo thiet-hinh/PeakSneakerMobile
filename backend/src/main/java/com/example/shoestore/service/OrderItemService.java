@@ -20,11 +20,6 @@ public class OrderItemService {
                 .orElseThrow(() -> new RuntimeException("OrderItem not found with id: " + id));
     }
 
-    public List<OrderItem> findByOrderId(Integer orderId) {
-        return orderItemRepository.findByOrderId(orderId);
-    }
-
-
     @Transactional
     public OrderItem save(OrderItem orderItem) {
 

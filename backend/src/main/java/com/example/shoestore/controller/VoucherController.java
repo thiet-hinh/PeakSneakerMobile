@@ -1,5 +1,7 @@
 package com.example.shoestore.controller;
 
+import com.example.shoestore.dto.request.ApplyVoucherRequest;
+import com.example.shoestore.dto.response.ApplyVoucherResponse;
 import com.example.shoestore.entity.Voucher;
 import com.example.shoestore.service.VoucherService;
 import lombok.RequiredArgsConstructor;
@@ -15,31 +17,18 @@ public class VoucherController {
 
     private final VoucherService voucherService;
 
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Voucher> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(voucherService.findById(id));
-    }
-
-    @GetMapping("/code/{code}")
+    @GetMapping("/{code}")
     public ResponseEntity<Voucher> getByCode(@PathVariable String code) {
         return ResponseEntity.ok(voucherService.findByCode(code));
     }
 
-    @PostMapping
-    public ResponseEntity<Voucher> create(@RequestBody Voucher voucher) {
-        return ResponseEntity.ok(voucherService.save(voucher));
-    }
+    @PostMapping("/apply")
+    public ResponseEntity<ApplyVoucherResponse> applyVoucher(
+            @RequestBody ApplyVoucherRequest request) {
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Voucher> update(@PathVariable Integer id, @RequestBody Voucher voucher) {
-        return ResponseEntity.ok(voucherService.update(id, voucher));
-    }
-
-    @PatchMapping("/{id}/active")
-    public ResponseEntity<Void> setActive(@PathVariable Integer id, @RequestParam Boolean isActive) {
-        voucherService.setActive(id, isActive);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                voucherService.applyVoucher(request)
+        );
     }
 
 }

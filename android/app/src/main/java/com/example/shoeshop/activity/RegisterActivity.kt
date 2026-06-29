@@ -1,18 +1,17 @@
 package com.example.shoeshop.activity
 
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.shoeshop.R
 import com.example.shoeshop.databinding.RegisterActivityBinding
-import com.google.firebase.auth.FirebaseAuth
-import androidx.lifecycle.lifecycleScope
 import com.example.shoeshop.dto.request.RegisterRequest
 import com.example.shoeshop.retrofit.UserRetrofit
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import kotlinx.coroutines.launch
 

@@ -13,9 +13,6 @@ import java.util.List;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
-    }
 
     public Category findById(Integer id) {
         return categoryRepository.findById(id)

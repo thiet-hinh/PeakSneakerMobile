@@ -49,4 +49,8 @@ public class Address {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_address_user"))
     private User user;
+
+    public String getFullAddress() {
+        return streetDetail+ ", "+ wardName+ ", "+districtName+", "+provinceName;
+    }
 }

@@ -42,10 +42,6 @@ public class ProductService {
         return productRepository.findByBrandIdAndIsDeletedFalse(brandId);
     }
 
-    public List<Product> findByGender(Gender gender) {
-        return productRepository.findByGenderAndIsDeletedFalse(gender);
-    }
-
     public List<Product> findFeatured() {
         return productRepository.findByIsFeaturedTrueAndIsDeletedFalse();
     }
@@ -80,10 +76,5 @@ public class ProductService {
         Product product = findById(id);
         product.setIsDeleted(true);
         productRepository.save(product);
-    }
-
-    @Transactional
-    public void deleteById(Integer id) {
-        productRepository.deleteById(id);
     }
 }

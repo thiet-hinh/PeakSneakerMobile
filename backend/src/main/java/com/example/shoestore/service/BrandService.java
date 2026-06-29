@@ -23,21 +23,4 @@ public class BrandService {
         return brandRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Brand not found with id: " + id));
     }
-
-    @Transactional
-    public Brand save(Brand brand) {
-        if (brandRepository.existsByName(brand.getName())) {
-            throw new RuntimeException("Brand name already exists: " + brand.getName());
-        }
-        return brandRepository.save(brand);
-    }
-
-    @Transactional
-    public Brand update(Integer id, Brand updated) {
-        Brand existing = findById(id);
-        existing.setName(updated.getName());
-        existing.setImageName(updated.getImageName());
-        existing.setDescription(updated.getDescription());
-        return brandRepository.save(existing);
-    }
 }
