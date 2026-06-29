@@ -1,8 +1,6 @@
 package com.example.shoeshop.fragment
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -13,14 +11,19 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoeshop.R
 import com.example.shoeshop.adapter.StoreProductAdapter
 import com.example.shoeshop.model.Product
+import com.example.shoeshop.retrofit.ProductRetrofit
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class StoreFragment : Fragment() {
 
@@ -40,23 +43,12 @@ class StoreFragment : Fragment() {
         etSearch = view.findViewById(R.id.etSearch)
         layoutEmptySearch = view.findViewById(R.id.layoutEmptySearch)
 
-        shimmerLayout.startShimmer()
-        shimmerLayout.visibility = View.VISIBLE
-        rvStoreProducts.visibility = View.GONE
-        layoutEmptySearch.visibility = View.GONE
-
         rvStoreProducts.layoutManager = GridLayoutManager(context, 2)
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            masterProductList = listOf(
-               Product(1, "NIKE", "Air Max Dawn SE", "4.9", "1.2k", "2.450.000đ", R.drawable.banner_placeholder, "3.150.000đ", "-22%"),
-                Product(2, "ADIDAS", "Ultraboost DNA", "4.8", "850", "3.200.000đ", R.drawable.banner_placeholder, "4.000.000đ", "-20%"),
-              Product(3, "JORDAN", "Air Jordan 1 Low", "5.0", "620", "3.850.000đ", R.drawable.banner_placeholder, "3.850.000đ", ""),
-              Product(4, "PUMA", "RS-X Efekt Futures", "4.7", "430", "2.100.000đ", R.drawable.banner_placeholder, "2.800.000đ", "-25%")
-         )
-            updateProductListUI(masterProductList)
-        }, 2000)
+        // Khởi động lấy danh sách không bộ lọc lần đầu từ cơ sở dữ liệu
+        loadProductsFromServer()
 
+        // Sự kiện tìm kiếm tức thời (Lọc cục bộ dựa trên dữ liệu đang hiển thị)
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -69,7 +61,7 @@ class StoreFragment : Fragment() {
         btnClearFilters.setOnClickListener {
             etSearch.text?.clear()
             etSearch.clearFocus()
-            filterProducts("")
+            loadProductsFromServer()
         }
 
         btnFilter.setOnClickListener {
@@ -77,6 +69,38 @@ class StoreFragment : Fragment() {
         }
 
         return view
+    }
+
+    // Gửi tham số request API lấy dữ liệu thực tế từ hệ thống Spring Boot
+    private fun loadProductsFromServer(
+        gender: String? = null,
+        brandId: Int? = null,
+        minPrice: Double? = null,
+        maxPrice: Double? = null,
+        size: String? = null
+    ) {
+        shimmerLayout.startShimmer()
+        shimmerLayout.visibility = View.VISIBLE
+        rvStoreProducts.visibility = View.GONE
+        layoutEmptySearch.visibility = View.GONE
+
+        ProductRetrofit.api.getProducts(gender, brandId, minPrice, maxPrice, size)
+            .enqueue(object : Callback<List<Product>> {
+                override fun onResponse(call: Call<List<Product>>, response: Response<List<Product>>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        masterProductList = response.body()!!
+                        updateProductListUI(masterProductList)
+                    } else {
+                        updateProductListUI(emptyList())
+                        Toast.makeText(context, "Lỗi lấy dữ liệu bộ lọc từ Server", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Product>>, t: Throwable) {
+                    updateProductListUI(emptyList())
+                    Toast.makeText(context, "Lỗi kết nối mạng: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 
     private fun filterProducts(query: String) {
@@ -255,21 +279,47 @@ class StoreFragment : Fragment() {
             updatePriceRangeUI()
             updateSortUI()
             updateSizeUI()
+
+            bottomSheetDialog.dismiss()
+            loadProductsFromServer() // Tải lại toàn bộ dữ liệu gốc
         }
 
         btnApply.setOnClickListener {
             bottomSheetDialog.dismiss()
 
-            val selectedBrandName = when(selectedBrand) {
-                1 -> "NIKE"
-                2 -> "ADIDAS"
-                3 -> "VANS"
-                4 -> "CONVERSE"
-                5 -> "PUMA"
-                else -> ""
+            // Map đổi giới tính sang cấu trúc ENUM phù hợp với database
+            val genderParam = when (selectedGender) {
+                1 -> "MEN"
+                2 -> "WOMEN"
+                3 -> "UNISEX"
+                else -> null
             }
 
-            filterProducts(selectedBrandName)
+            // ID thương hiệu từ 1 -> 5 tương thích chính xác auto-increment trong bảng brand của bạn
+            val brandIdParam = selectedBrand
+
+            // Phân bổ khoảng giá gửi lên Server
+            var minPriceParam: Double? = null
+            var maxPriceParam: Double? = null
+            when (selectedPriceRange) {
+                1 -> maxPriceParam = 2000000.0
+                2 -> {
+                    minPriceParam = 2000000.0
+                    maxPriceParam = 4000000.0
+                }
+                3 -> minPriceParam = 4000000.0
+            }
+
+            val sizeParam = selectedSize.toString()
+
+            // Thực thi gửi gói bộ lọc xuống Database
+            loadProductsFromServer(
+                gender = genderParam,
+                brandId = brandIdParam,
+                minPrice = minPriceParam,
+                maxPrice = maxPriceParam,
+                size = sizeParam
+            )
         }
 
         bottomSheetDialog.show()
