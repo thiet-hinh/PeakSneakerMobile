@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,13 +38,24 @@ class CartActivity : AppCompatActivity() {
 
         btnCheckout= findViewById<Button>(R.id.btnCheckout)
         btnCheckout.setOnClickListener {
-           val intent: Intent = Intent(this, CheckoutActivity:: class.java)
+            // 1. Lọc lấy danh sách ID của các item đã được tick chọn
+            val selectedIds = myCartList.filter { it.isChecked }.map { it.id }
+
+            if (selectedIds.isEmpty()) {
+                Toast.makeText(this, "Vui lòng chọn ít nhất một sản phẩm để thanh toán", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val intent = Intent(this, CheckoutActivity::class.java).apply {
+                putIntegerArrayListExtra("SELECTED_CART_ITEM_IDS", ArrayList(selectedIds))
+            }
             startActivity(intent)
         }
 
+        // Nhớ call danh sách có id bằng API trả về DTO (CartItemResponse)
         myCartList = listOf(
-            Cart("Nike Air Max 270", "Size: 42", 3290000L, 1),
-            Cart("Vans Old Skool Black", "Size: 41", 1850000L, 1)
+            Cart(1,"Nike Air Max 270", "Size: 42", 3290000L, 1),
+            Cart(2,"Vans Old Skool Black", "Size: 41", 1850000L, 1)
         )
 
         rvCartItems.layoutManager = LinearLayoutManager(this)

@@ -1,7 +1,5 @@
 package com.example.shoeshop.model
 
-import java.time.LocalDateTime
-
 data class User(
     val id: Int,
     val firebaseUid: String,

@@ -28,11 +28,6 @@ public class ImageService {
                 .orElseThrow(() -> new RuntimeException("No primary image for product: " + productId));
     }
 
-    public Image findByName(String name) {
-        return imageRepository.findByImageName(name)
-                .orElseThrow(() -> new RuntimeException("Image not found: " + name));
-    }
-
     @Transactional
     public Image save(Image image) {
         return imageRepository.save(image);

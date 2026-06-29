@@ -42,16 +42,6 @@ public class UserService {
                 .build();
     }
 
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-    }
-
-    public User findByFirebaseUid(String firebaseUid) {
-        return userRepository.findByFirebaseUid(firebaseUid)
-                .orElseThrow(() -> new RuntimeException("User not found with firebaseUid: " + firebaseUid));
-    }
-
     public List<User> findByRole(Role role) {
         return userRepository.findByRole(role);
     }
@@ -84,13 +74,6 @@ public class UserService {
                 .isActive(savedUser.getIsActive())
                 .createdAt(savedUser.getCreatedAt() != null ? savedUser.getCreatedAt().toString() : "")
                 .build();
-    }
-
-    @Transactional
-    public void setActive(String id, Boolean isActive) {
-        User user = findEntityByFirebaseId(id);
-        user.setIsActive(isActive);
-        userRepository.save(user);
     }
 
     @Transactional

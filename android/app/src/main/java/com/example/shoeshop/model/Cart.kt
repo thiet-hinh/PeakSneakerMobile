@@ -1,6 +1,7 @@
 package com.example.shoeshop.model
 
 data class Cart(
+    val id: Int,
     val name: String,
     val size: String,
     val price: Long,

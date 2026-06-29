@@ -32,10 +32,6 @@ public class PaymentService {
         return paymentRepository.findByPaymentStatus(status);
     }
 
-    public boolean existsByOrderId(Integer orderId) {
-        return paymentRepository.existsByOrderId(orderId);
-    }
-
     @Transactional
     public Payment save(Payment payment) {
 
@@ -61,17 +57,6 @@ public class PaymentService {
         existing.setTransactionId(updated.getTransactionId());
 
         return paymentRepository.save(existing);
-    }
-
-    @Transactional
-    public Payment updateStatus(Integer paymentId, PaymentStatus status) {
-
-        Payment payment = findById(paymentId);
-        payment.setPaymentStatus(status);
-        if (status == PaymentStatus.PAID) {
-            payment.setPaidAt(LocalDateTime.now());
-        }
-        return paymentRepository.save(payment);
     }
 
     public Payment markAsPaid(Integer orderId, String transactionId) {

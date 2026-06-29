@@ -1,7 +1,6 @@
 package com.example.shoeshop.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -177,6 +176,7 @@ class ShippingAddressActivity : AppCompatActivity() {
 
             if (response.isSuccessful) {
                 Toast.makeText(this@ShippingAddressActivity, "Lưu địa chỉ thành công", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
                 finish()
             } else {
                 Toast.makeText(this@ShippingAddressActivity, "Không thể lưu địa chỉ", Toast.LENGTH_SHORT).show()

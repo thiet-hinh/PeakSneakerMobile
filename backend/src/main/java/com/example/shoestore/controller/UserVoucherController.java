@@ -20,10 +20,5 @@ public class UserVoucherController {
         return ResponseEntity.ok(userVoucherService.findById(id));
     }
 
-    @PutMapping("/user-voucher/{id}/use")
-    public ResponseEntity<Void> setUsed(@PathVariable Integer id) {
-        userVoucherService.markAsUnused(id);
-        return ResponseEntity.noContent().build();
-    }
 
 }

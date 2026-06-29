@@ -43,10 +43,6 @@ public class ProductService {
         return productRepository.findByBrandIdAndIsDeletedFalse(brandId);
     }
 
-    public List<Product> findByGender(Gender gender) {
-        return productRepository.findByGenderAndIsDeletedFalse(gender);
-    }
-
     public List<Product> findFeatured() {
         return productRepository.findByIsFeaturedTrueAndIsDeletedFalse();
     }

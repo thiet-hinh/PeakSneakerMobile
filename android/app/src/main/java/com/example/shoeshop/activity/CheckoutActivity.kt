@@ -2,79 +2,172 @@ package com.example.shoeshop.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.shoeshop.adapter.OrderProductAdapter
+import com.example.shoeshop.adapter.CheckoutItemAdapter
 import com.example.shoeshop.databinding.CheckoutActivityBinding
-import com.example.shoeshop.dto.respone.OrderProduct
+import com.example.shoeshop.dto.request.ApplyVoucherRequest
+import com.example.shoeshop.dto.request.CheckoutPreviewRequest
+import com.example.shoeshop.dto.request.PlaceOrderRequest
+import com.example.shoeshop.dto.respone.CheckoutPreviewResponse
+import com.example.shoeshop.dto.respone.PlaceOrderResponse
+import com.example.shoeshop.enums.DeliveryMethod
+import com.example.shoeshop.enums.PaymentMethod
+import com.example.shoeshop.retrofit.CheckoutRetrofit
+import com.example.shoeshop.retrofit.OrderRetrofit
+import com.example.shoeshop.retrofit.VoucherRetrofit
+import com.example.shoeshop.utils.PrefManager
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Locale
 
 class CheckoutActivity : AppCompatActivity() {
 
     private lateinit var binding: CheckoutActivityBinding
-    private lateinit var adapter: OrderProductAdapter
+    private lateinit var adapter: CheckoutItemAdapter
+    private lateinit var selectedCartItemIds: ArrayList<Int>
 
     private var subtotal = 0.0
-    private var shippingFee = 0.0
-    private var discount = 250000.0
-    private var paymentMethod = "VNPAY"
+    private var shippingFee = 35000.0
+    private var discount = 0.0
+
+    private var finalAmount =0.0
+
+    private var voucherCode: String =""
+    private var paymentMethod = PaymentMethod.COD
+
+    private var deliveryMethod = DeliveryMethod.SAVE
+    private var userId = -1
+
+    private val addressLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                loadCheckoutPreview()
+            }
+        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = CheckoutActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         binding.headerBar.tvTitle.text = "Thanh toán"
         binding.headerBar.btnBack.setOnClickListener { finish() }
 
-        binding.btnEditAddress.setOnClickListener {
-            val intent : Intent = Intent(this, ShippingAddressActivity:: class.java)
-            startActivity(intent)
+        userId = PrefManager.getUser(this)?.id ?: -1
+        if (userId == -1) {
+            Toast.makeText(this, "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show()
+            finish()
+            return
         }
+
+        binding.btnEditAddress.setOnClickListener {
+            addressLauncher.launch(
+                Intent(this, ShippingAddressActivity::class.java)
+            )
+        }
+
+        selectedCartItemIds =
+            intent.getIntegerArrayListExtra("SELECTED_CART_ITEM_IDS") ?: arrayListOf()
+        Log.d("CHECKOUT", "Received IDs: $selectedCartItemIds (Size: ${selectedCartItemIds.size})")
 
         setupRecyclerView()
         setupShippingSelection()
         setupPaymentSelection()
+        loadCheckoutPreview()
+        setupVoucher()
+        setupPlaceOrder()
+    }
 
-        loadData()
-
+    private fun setupPlaceOrder() {
         binding.btnPlaceOrder.setOnClickListener {
-            Toast.makeText(this, "Đặt hàng thành công", Toast.LENGTH_SHORT).show()
-        }
+            lifecycleScope.launch {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        OrderRetrofit.api.placeOrder(
+                            PlaceOrderRequest(
+                                userId = userId,
+                                selectedCartItemIds = selectedCartItemIds,
+                                voucherCode = voucherCode,
+                                paymentMethod = paymentMethod,
+                                deliveryMethod = deliveryMethod
+                            )
+                        )
+                    }
 
-        binding.btnPlaceOrder.setOnClickListener {
-            val intent: Intent = Intent(this, OrderSuccessActivity::class.java)
-            startActivity(intent)
+                    if (response.isSuccessful) {
+                        response.body()?.let { body ->
+                            startActivity(Intent(this@CheckoutActivity, OrderSuccessActivity::class.java).apply {
+                                putExtra("order_code", body.orderCode)
+                                putExtra("payment_method", body.paymentMethod)
+                                putExtra("estimated_delivery_date", body.estimatedDeliveryDate)
+                            })
+                        }
+                    } else {
+                        try {
+                            val errorBody = response.errorBody()?.string()
+                            val errorResponse = Gson().fromJson(errorBody, PlaceOrderResponse::class.java)
+                            Toast.makeText(this@CheckoutActivity, errorResponse.message, Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(this@CheckoutActivity, "Đặt hàng thất bại, vui lòng thử lại!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("ORDER", "Place order error", e)
+                }
+            }
         }
     }
 
     private fun setupRecyclerView() {
-        adapter = OrderProductAdapter()
+        adapter = CheckoutItemAdapter()
         binding.rvProducts.layoutManager = LinearLayoutManager(this)
         binding.rvProducts.adapter = adapter
     }
 
-    private fun loadData() {
-        binding.tvReceiver.text = "Nguyễn Minh Anh"
-        binding.tvPhone.text = "0901234567"
-        binding.tvAddress.text = "Tầng 12, Bitexco, 2 Hải Triều, Bến Nghé, Quận 1, TP.HCM"
+    private fun loadCheckoutPreview() {
+        lifecycleScope.launch {
+            try {
+                val response = CheckoutRetrofit.api.getCheckoutPreview(
+                    userId,
+                    CheckoutPreviewRequest(selectedCartItemIds)
+                )
+                if (response.isSuccessful) {
+                    response.body()?.let { showCheckoutData(it) }
+                } else {
+                    Log.e(
+                        "CHECKOUT",
+                        "API Error: ${response.code()} - ${response.errorBody()?.string()}"
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("CHECKOUT", "API Exception", e)
+            }
+        }
+    }
 
-        val products = listOf(
-            OrderProduct(imageUrl = "https://res.cloudinary.com/duypvtz5w/image/upload/v1780831537/smart-man.jpg", brand = "NIKE", productName = "Air Jordan 1", size = "42", color = "Đỏ", quantity = 1, price = 4250000.0),
-            OrderProduct(imageUrl = "https://res.cloudinary.com/duypvtz5w/image/upload/v1780831537/smart-man.jpg", brand = "ADIDAS", productName = "Forum Low", size = "41", color = "Trắng", quantity = 1, price = 2850000.0)
-        )
+    private fun showCheckoutData(data: CheckoutPreviewResponse) {
+        data.shippingAddress?.let {
+            binding.tvReceiver.text = it.receiverName
+            binding.tvPhone.text = it.phone
+            binding.tvAddress.text = it.address
+        }
 
-        adapter.submitList(products)
-        subtotal = products.sumOf { it.price * it.quantity }
+        adapter.submitList(data.items)
+        subtotal = data.items.sumOf { it.price * it.quantity }
 
-        selectStandardShipping()
-        selectVnpay()
-        updateTotal()
+        selectExpressShipping()
+        selectCod()
+        updateFinalAmount()
     }
 
     private fun setupShippingSelection() {
@@ -89,24 +182,26 @@ class CheckoutActivity : AppCompatActivity() {
 
     private fun selectExpressShipping() {
         shippingFee = 35000.0
+        deliveryMethod= DeliveryMethod.FAST
         binding.cardExpress.strokeWidth = 4
         binding.cardStandard.strokeWidth = 0
         binding.imgExpressCheck.visibility = View.VISIBLE
         binding.imgStandardCheck.visibility = View.GONE
-        updateTotal()
+        updateFinalAmount()
     }
 
     private fun selectStandardShipping() {
         shippingFee = 0.0
+        deliveryMethod= DeliveryMethod.SAVE
         binding.cardExpress.strokeWidth = 0
         binding.cardStandard.strokeWidth = 4
         binding.imgExpressCheck.visibility = View.GONE
         binding.imgStandardCheck.visibility = View.VISIBLE
-        updateTotal()
+        updateFinalAmount()
     }
 
     private fun selectCod() {
-        paymentMethod = "COD"
+        paymentMethod = PaymentMethod.COD
         binding.cardCod.strokeWidth = 4
         binding.cardVnpay.strokeWidth = 0
         binding.imgCodSelected.visibility = View.VISIBLE
@@ -114,23 +209,79 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun selectVnpay() {
-        paymentMethod = "VNPAY"
+        paymentMethod = PaymentMethod.VNPAY
         binding.cardCod.strokeWidth = 0
         binding.cardVnpay.strokeWidth = 4
         binding.imgCodSelected.visibility = View.GONE
         binding.imgVnpaySelected.visibility = View.VISIBLE
     }
 
-    private fun updateTotal() {
-        val total = subtotal + shippingFee - discount
-
+    private fun updateFinalAmount() {
+        finalAmount = subtotal + shippingFee - discount
         binding.tvSubtotal.text = "Tạm tính: ${formatPrice(subtotal)}"
-        binding.tvShippingFee.text = if (shippingFee == 0.0) "Phí vận chuyển: Miễn phí" else "Phí vận chuyển: ${formatPrice(shippingFee)}"
+        binding.tvShippingFee.text =
+            if (shippingFee == 0.0) "Phí vận chuyển: Miễn phí" else "Phí vận chuyển: ${
+                formatPrice(shippingFee)
+            }"
         binding.tvDiscount.text = "Giảm giá: -${formatPrice(discount)}"
-        binding.tvTotal.text = "Tổng cộng: ${formatPrice(total)}"
+        binding.tvTotal.text = "Tổng cộng: ${formatPrice(finalAmount)}"
     }
 
     private fun formatPrice(price: Double): String {
         return NumberFormat.getNumberInstance(Locale("vi", "VN")).format(price) + "đ"
     }
+
+    private fun setupVoucher() {
+        binding.btnApplyVoucher.setOnClickListener {
+            val code = binding.edtVoucher.text.toString().trim()
+            if (code.isBlank()) {
+                showMessage("Vui lòng nhập mã giảm giá")
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                try {
+                    val response = VoucherRetrofit.api.applyVoucher(
+                        ApplyVoucherRequest(userId = userId, orderAmount = subtotal, voucherCode = code)
+                    )
+
+                    if (!response.isSuccessful) {
+                        showMessage("Không thể kết nối máy chủ")
+                        return@launch
+                    }
+
+                    val body = response.body()
+                    if (body == null) {
+                        showMessage("Không nhận được dữ liệu")
+                        return@launch
+                    }
+
+                    if (body.success) {
+                        discount = body.discountAmount
+                        voucherCode = body.code!!
+                    } else {
+                        discount = 0.0
+                        voucherCode = ""
+                    }
+                    updateFinalAmount()
+                    showMessage(body.message)
+                } catch (e: Exception) {
+                    Log.e("Voucher", "Apply voucher failed", e)
+                    discount = 0.0
+                    voucherCode = ""
+                    updateFinalAmount()
+                    showMessage(e.message ?: "Đã xảy ra lỗi")
+                }
+            }
+        }
+    }
+
+    private fun showMessage(message: String) {
+        try {
+            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("Toast", "Cannot show toast", e)
+        }
+    }
+
 }
