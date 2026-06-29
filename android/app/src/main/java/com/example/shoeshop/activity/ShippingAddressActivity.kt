@@ -177,6 +177,7 @@ class ShippingAddressActivity : AppCompatActivity() {
 
             if (response.isSuccessful) {
                 Toast.makeText(this@ShippingAddressActivity, "Lưu địa chỉ thành công", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
                 finish()
             } else {
                 Toast.makeText(this@ShippingAddressActivity, "Không thể lưu địa chỉ", Toast.LENGTH_SHORT).show()

@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.shoeshop.databinding.OrderSuccessActivityBinding
 
 class OrderSuccessActivity : AppCompatActivity() {
-
     private lateinit var binding: OrderSuccessActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -15,13 +15,7 @@ public class VoucherController {
 
     private final VoucherService voucherService;
 
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Voucher> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(voucherService.findById(id));
-    }
-
-    @GetMapping("/code/{code}")
+    @GetMapping("/{code}")
     public ResponseEntity<Voucher> getByCode(@PathVariable String code) {
         return ResponseEntity.ok(voucherService.findByCode(code));
     }

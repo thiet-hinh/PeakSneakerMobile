@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface ImageRepository extends JpaRepository<Image, Integer> {
 
-    List<Image> findByProductId(Integer productId);
+    Optional<Image> findFirstByProductVariantIdAndIsPrimaryTrue(Integer variantId);
 
     List<Image> findByProductVariantId(Integer productVariantId);
 
