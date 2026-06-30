@@ -19,7 +19,7 @@ interface UserApi {
     @POST("api/user/register")
     suspend fun register(
         @Body request: RegisterRequest
-    ): Response<Unit>
+    ): Response<User>
 
     @GET("api/user/{uid}")
     suspend fun getUserByFireBaseUid(@Path("uid") uid: String): Response<User>
@@ -46,4 +46,5 @@ interface UserApi {
         @Path("userId") userId: Int,
         @Body avatar: RequestBody
     ): Response<Unit>
+
 }

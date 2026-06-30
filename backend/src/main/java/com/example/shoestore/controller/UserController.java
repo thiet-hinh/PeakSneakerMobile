@@ -24,7 +24,11 @@ public class UserController {
 
     @GetMapping("/{uid}")
     public ResponseEntity<UserResponse> getByUid(@PathVariable("uid") String uid) {
-        return ResponseEntity.ok(userService.findByFirebaseId(uid));
+        UserResponse user = userService.findByFirebaseId(uid);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/role/{role}")
@@ -34,12 +38,20 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(
-            @RequestBody RegisterRequest request) {
-
-        return ResponseEntity.ok(userService.register(request));
+    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
+        User saved = userService.register(request);
+        return ResponseEntity.ok(UserResponse.builder()
+                .id(saved.getId())
+                .firebaseUid(saved.getFirebaseUid())
+                .firstName(saved.getFirstName())
+                .lastName(saved.getLastName())
+                .email(saved.getEmail())
+                .phone(saved.getPhone())
+                .role(saved.getRole() != null ? saved.getRole().name() : "USER")
+                .isActive(saved.getIsActive())
+                .createdAt(saved.getCreatedAt() != null ? saved.getCreatedAt().toString() : "")
+                .build());
     }
-
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> update(String uid, @RequestBody UserResponse user) {
         return ResponseEntity.ok(userService.update(uid, user));
