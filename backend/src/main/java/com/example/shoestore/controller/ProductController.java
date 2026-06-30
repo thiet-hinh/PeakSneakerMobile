@@ -28,11 +28,13 @@ public class ProductController {
             @RequestParam(required = false) java.math.BigDecimal maxPrice,
             @RequestParam(required = false) String size) {
 
-        // Gửi toàn bộ dữ liệu lọc sang Service
         List<ProductCardDTO> products = productService.getAllCardProduct(keyword, gender, brandId, minPrice, maxPrice, size);
         return ResponseEntity.ok(products);
     }
-
+    @GetMapping("/featured-one-per-brand")
+    public ResponseEntity<List<ProductCardDTO>> getFeaturedOneEachBrand() {
+        return ResponseEntity.ok(productService.getFeaturedOneEachBrand());
+    }
     @GetMapping("/{id}")
     public ResponseEntity<ProductDetailDTO> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(productService.getDetailById(id));

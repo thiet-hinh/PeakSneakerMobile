@@ -1,7 +1,10 @@
 package com.example.shoeshop.model
 
+import com.google.gson.annotations.SerializedName
+
 data class Brand(
-    val id: Int,
-    val name: String,
-    val imageResId: Int
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("description") val description: String?,
+    @SerializedName("imageUrl") val imageUrl: String?
 )
