@@ -6,5 +6,5 @@ data class ProductVariant(
     @SerializedName("id") val id: Int,
     @SerializedName("color") val color: String?,
     @SerializedName("size") val size: String?,
-    @SerializedName("stockQuantity") val stockQuantity: Int // Khớp với trường Spring Boot của bạn
+    @SerializedName("stockQuantity") val stockQuantity: Int
 )

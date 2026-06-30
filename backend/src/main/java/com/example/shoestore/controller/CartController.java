@@ -33,7 +33,6 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCartByUserId(userId));
     }
 
-    // Sửa số lượng 1 item trong giỏ. Nếu quantity <= 0 thì item sẽ bị xóa luôn (trả 204).
     @PatchMapping("/items/{itemId}")
     public ResponseEntity<?> updateQuantity(
             @PathVariable Integer itemId,

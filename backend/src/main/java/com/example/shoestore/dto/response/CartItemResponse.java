@@ -14,5 +14,5 @@ public class CartItemResponse {
     private String size;
     private BigDecimal price;
     private Integer quantity;
-    private Integer stockQuantity; // Để chặn nếu Android bấm cộng quá số lượng trong kho
+    private Integer stockQuantity;
 }

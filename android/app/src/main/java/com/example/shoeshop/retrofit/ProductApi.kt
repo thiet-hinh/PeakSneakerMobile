@@ -32,24 +32,19 @@ interface ProductApi {
     @GET("api/cart/{userId}")
     fun getCart(@Path("userId") userId: Int): Call<List<CartItemResponse>>
 
-    // Sửa số lượng 1 item trong giỏ. Backend trả về item đã cập nhật (CartItemResponse).
-    // Nếu quantity <= 0, backend sẽ xóa item và trả 204 (body null).
     @PATCH("api/cart/items/{itemId}")
     fun updateQuantity(
         @Path("itemId") itemId: Int,
         @Query("quantity") quantity: Int
     ): Call<CartItemResponse>
 
-    // Xóa hẳn 1 item khỏi giỏ hàng (bấm nút "x")
     @DELETE("api/cart/items/{itemId}")
     fun removeCartItem(@Path("itemId") itemId: Int): Call<ResponseBody>
 
-    // Xóa toàn bộ giỏ hàng của 1 user (vd: sau khi đặt hàng thành công)
     @DELETE("api/cart/user/{userId}")
     fun clearCart(@Path("userId") userId: Int): Call<ResponseBody>
 
     companion object {
-        // ⚠️ Nhớ thay đổi IP/Port này cho đúng với địa chỉ chạy Backend thực tế của bạn nhé
         private const val BASE_URL = "http://10.0.2.2:8080/"
 
         val productApi: ProductApi by lazy {

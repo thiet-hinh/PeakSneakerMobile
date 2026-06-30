@@ -34,7 +34,6 @@ class ProductDetailActivity : AppCompatActivity() {
     private var productId: Int = -1
     private var allVariants: List<ProductVariant> = listOf()
 
-    // Lưu thuộc tính được lựa chọn để gửi lên Server
     private var selectedColor: String? = null
     private var selectedSize: String? = null
 
@@ -42,7 +41,6 @@ class ProductDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_detail)
 
-        // Nhận ID sản phẩm từ Intent khi click ở màn hình danh sách Store
         productId = intent.getIntExtra("PRODUCT_ID", 1)
 
         initViews()
@@ -74,7 +72,6 @@ class ProductDetailActivity : AppCompatActivity() {
                     val product = response.body()!!
                     allVariants = product.variants ?: listOf()
 
-                    // Sử dụng các Getter thông minh có sẵn trong Model của bạn
                     tvDetailBrand.text = product.brandName.uppercase()
                     tvDetailName.text = product.name
                     tvDetailRating.text = product.rating
@@ -82,7 +79,6 @@ class ProductDetailActivity : AppCompatActivity() {
                     tvDetailOriginalPrice.text = String.format("%,.0fđ", product.basePrice)
                     tvDetailDiscount.text = String.format("-%.0f%%", product.discount)
 
-                    // 💡 Đã hoạt động mượt mà vì biến product đã có trường description
                     tvDetailDescription.text = product.description ?: "Không có mô tả cho sản phẩm này."
 
                     Glide.with(this@ProductDetailActivity)
@@ -90,11 +86,9 @@ class ProductDetailActivity : AppCompatActivity() {
                         .placeholder(R.drawable.banner_placeholder)
                         .into(imgDetailProduct)
 
-                    // Phân tách lấy danh sách các Tên Màu duy nhất từ danh sách biến thể
                     val uniqueColors = allVariants.mapNotNull { it.color }.distinct()
                     renderColors(uniqueColors)
 
-                    // Lúc đầu chưa chọn màu cụ thể -> Hiển thị các size còn hàng nói chung
                     val uniqueSizes = allVariants.filter { it.stockQuantity > 0 }.mapNotNull { it.size }.distinct()
                     renderSizes(uniqueSizes)
                 }
@@ -106,7 +100,6 @@ class ProductDetailActivity : AppCompatActivity() {
         })
     }
 
-    // Sinh các thẻ chọn màu sắc dựa trên tên chữ từ Database
     private fun renderColors(colors: List<String>) {
         layoutColors.removeAllViews()
         colors.forEach { colorName ->
@@ -126,9 +119,8 @@ class ProductDetailActivity : AppCompatActivity() {
 
             textView.setOnClickListener {
                 selectedColor = colorName
-                selectedSize = null // Reset size đã chọn trước đó tránh xung đột cấu hình kho
+                selectedSize = null
 
-                // Cập nhật trạng thái hiển thị của các Chip màu sắc
                 for (i in 0 until layoutColors.childCount) {
                     val child = layoutColors.getChildAt(i) as TextView
                     child.setBackgroundResource(R.drawable.bg_size_unselected)
@@ -137,7 +129,6 @@ class ProductDetailActivity : AppCompatActivity() {
                 textView.setBackgroundResource(R.drawable.bg_size_selected)
                 textView.setTextColor(resources.getColor(android.R.color.white, null))
 
-                // 🔥 LỌC THÔNG MINH: Chỉ hiển thị những Size CÒN HÀNG tương ứng với màu này
                 val availableSizes = allVariants
                     .filter { it.color == selectedColor && it.stockQuantity > 0 }
                     .mapNotNull { it.size }
@@ -149,7 +140,6 @@ class ProductDetailActivity : AppCompatActivity() {
         }
     }
 
-    // Sinh lưới chọn kích thước động
     private fun renderSizes(sizes: List<String>) {
         gridSizes.removeAllViews()
         sizes.forEach { sizeValue ->
@@ -172,7 +162,6 @@ class ProductDetailActivity : AppCompatActivity() {
             textView.setOnClickListener {
                 selectedSize = sizeValue
 
-                // Cập nhật trạng thái hiển thị của lưới kích cỡ
                 for (i in 0 until gridSizes.childCount) {
                     val child = gridSizes.getChildAt(i) as TextView
                     child.setBackgroundResource(R.drawable.bg_size_unselected)
@@ -195,9 +184,8 @@ class ProductDetailActivity : AppCompatActivity() {
             return
         }
 
-        // Tạo gói Request truyền tải dữ liệu
         val cartRequest = CartRequest(
-            userId = 1, // Thay bằng ID người dùng thực tế lấy từ Session Đăng Nhập
+            userId = 1,
             productId = productId,
             color = selectedColor!!,
             size = selectedSize!!

@@ -18,7 +18,6 @@ import java.util.Locale
 class CartAdapter(
     private var itemList: List<Cart>,
     private val onTotalChanged: () -> Unit,
-    // oldQuantity được truyền kèm để Activity có thể revert lại UI nếu gọi API thất bại
     private val onQuantityChanged: (item: Cart, newQuantity: Int, oldQuantity: Int) -> Unit,
     private val onRemoveItem: (item: Cart) -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
@@ -44,17 +43,14 @@ class CartAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = itemList[position]
 
-        // 1. Gán dữ liệu chữ công khai (Tên, Size, Màu, Số lượng)
         holder.txtProductName.text = item.name
         holder.txtProductColor.text = item.color
         holder.txtProductSize.text = item.size
         holder.txtQuantity.text = item.quantity.toString()
 
-        // Định dạng hiển thị tiền tệ Việt Nam (Ví dụ: 3.290.000đ)
         val format = NumberFormat.getInstance(Locale("vi", "VN"))
         holder.txtProductPrice.text = "${format.format(item.price)}đ"
 
-        // 2. Gán trạng thái Checkbox tích chọn sản phẩm
         holder.cbSelect.setOnCheckedChangeListener(null)
         holder.cbSelect.isChecked = item.isChecked
         holder.cbSelect.setOnCheckedChangeListener { _, isChecked ->
@@ -62,7 +58,6 @@ class CartAdapter(
             onTotalChanged()
         }
 
-        // 3. XỬ LÝ ĐƯỜNG DẪN VÀ TẢI ẢNH ĐỘNG QUA GLIDE
         val imagePath = item.image ?: ""
         val imageUrl = if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
             imagePath
@@ -76,7 +71,6 @@ class CartAdapter(
             .error(android.R.drawable.stat_notify_error)
             .into(holder.imgProduct)
 
-        // 4. Bấm nút Tăng (+) số lượng — chặn nếu đã chạm trần tồn kho
         holder.btnPlus.setOnClickListener {
             if (item.quantity >= item.stockQuantity) {
                 Toast.makeText(holder.itemView.context, "Đã đạt số lượng tối đa trong kho", Toast.LENGTH_SHORT).show()
@@ -90,7 +84,6 @@ class CartAdapter(
             onQuantityChanged(item, newQty, oldQty)
         }
 
-        // 5. Bấm nút Giảm (-) số lượng — giảm tới 1 thì dừng, không tự xóa item
         holder.btnMinus.setOnClickListener {
             if (item.quantity > 1) {
                 val oldQty = item.quantity
@@ -102,7 +95,6 @@ class CartAdapter(
             }
         }
 
-        // 6. Bấm nút xóa (x) — hỏi xác nhận rồi mới xóa
         holder.btnRemove.setOnClickListener {
             AlertDialog.Builder(holder.itemView.context)
                 .setTitle("Xóa sản phẩm")
@@ -123,7 +115,6 @@ class CartAdapter(
         notifyDataSetChanged()
     }
 
-    // Dùng khi cần revert lại quantity trên UI sau khi gọi API thất bại, tránh load lại cả danh sách
     fun refreshItem(cartItemId: Int) {
         val index = itemList.indexOfFirst { it.cartItemId == cartItemId }
         if (index != -1) {

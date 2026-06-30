@@ -83,14 +83,11 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDetailDTO getDetailById(Integer id) {
-        // 1. SỬA LẠI: Tìm đúng thực thể Product từ ProductRepository
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với ID: " + id));
 
-        // 2. Lấy tên Brand an toàn
         String brandName = (product.getBrand() != null) ? product.getBrand().getName() : "Shoe Shop";
 
-        // 3. Lấy imageName và bọc qua Cloudinary Service
         String imageUrl = "";
         if (product.getImages() != null && !product.getImages().isEmpty()) {
             String rawImageName = product.getImages().get(0).getImageName();
@@ -99,13 +96,10 @@ public class ProductService {
             }
         }
 
-        // 4. Tính toán rating trung bình hoặc để mặc định
         String rating = "5.0";
 
-        // 5. THÊM MỚI: Gọi Repository lấy toàn bộ danh sách biến thể (Màu, Size, Kho) của sản phẩm này lên
         List<ProductVariant> variants = productVariantRepository.findByProductId(id);
 
-        // 6. Đóng gói gọn gàng chuyển về cho Android (Nhớ truyền biến variants vào cuối constructor)
         return new ProductDetailDTO(
                 product.getId(),
                 product.getName(),
@@ -117,7 +111,7 @@ public class ProductService {
                 brandName,
                 imageUrl,
                 rating,
-                variants // 👈 ĐÂY CHÍNH LÀ CHÌA KHÓA để Android nhận được danh sách màu và kích cỡ!
+                variants
         );
     }
 

@@ -34,15 +34,12 @@ class CartActivity : AppCompatActivity() {
     private lateinit var rvCartItems: RecyclerView
     private lateinit var layoutEmptyCart: LinearLayout
 
-    // TODO: thay bằng userId thật của tài khoản đang đăng nhập (SharedPreferences/Session),
-    // hiện đang giả lập tạm userId = 1 để test.
     private val userId = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_cart)
 
-        // Ánh xạ các View từ XML
         txtSubTotal = findViewById(R.id.txtSubTotal)
         txtTotal = findViewById(R.id.txtTotal)
         layoutEmptyCart = findViewById(R.id.layoutEmptyCart)
@@ -66,7 +63,6 @@ class CartActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Cấu hình Adapter và RecyclerView
         rvCartItems.layoutManager = LinearLayoutManager(this)
         cartAdapter = CartAdapter(
             itemList = myCartList,
@@ -82,7 +78,6 @@ class CartActivity : AppCompatActivity() {
         )
         rvCartItems.adapter = cartAdapter
 
-        // Tải dữ liệu từ DB lúc mở màn hình lên
         loadCartDataFromDatabase()
     }
 
@@ -127,7 +122,6 @@ class CartActivity : AppCompatActivity() {
             .enqueue(object : Callback<CartItemResponse> {
                 override fun onResponse(call: Call<CartItemResponse>, response: Response<CartItemResponse>) {
                     if (!response.isSuccessful) {
-                        // Revert lại số lượng cũ trên UI (thường do vượt tồn kho)
                         item.quantity = oldQuantity
                         cartAdapter.refreshItem(item.cartItemId)
                         updateTotalValue()
