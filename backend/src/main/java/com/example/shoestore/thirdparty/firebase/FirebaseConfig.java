@@ -17,7 +17,7 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
 
-        InputStream serviceAccount = new ClassPathResource("shoeshop-b6479-firebase-adminsdk-fbsvc-dd4dffdc0e.json").getInputStream();
+        InputStream serviceAccount = new ClassPathResource("peaksneaker-firebase-adminsdk-fbsvc-25a3f72502.json").getInputStream();
 
         FirebaseOptions options = FirebaseOptions.builder().setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
         if (FirebaseApp.getApps().isEmpty()) {

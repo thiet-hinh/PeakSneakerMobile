@@ -111,4 +111,8 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.facebook.shimmer:shimmer:0.5.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // GOOGLE SIGN-IN (Credential Manager)
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 }

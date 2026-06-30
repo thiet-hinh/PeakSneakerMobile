@@ -27,19 +27,19 @@ public class UserService {
     }
 
     public UserResponse findByFirebaseId(String uid) {
-        User user = findEntityByFirebaseId(uid);
-        System.out.println("Tìm thấy User trong DB: " + user.getEmail() + " với UID: " + user.getFirebaseUid());
-        return UserResponse.builder()
-                .id(user.getId())
-                .firebaseUid(user.getFirebaseUid())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .role(user.getRole() != null ? user.getRole().name() : "USER")
-                .isActive(user.getIsActive() != null ? user.getIsActive() : true)
-                .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toString() : "")
-                .build();
+        return userRepository.findByFirebaseUid(uid)
+                .map(user -> UserResponse.builder()
+                        .id(user.getId())
+                        .firebaseUid(user.getFirebaseUid())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .role(user.getRole() != null ? user.getRole().name() : "USER")
+                        .isActive(user.getIsActive() != null ? user.getIsActive() : true)
+                        .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toString() : "")
+                        .build())
+                .orElse(null);
     }
 
     public List<User> findByRole(Role role) {

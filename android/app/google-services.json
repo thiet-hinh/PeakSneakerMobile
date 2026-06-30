@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "1081179926806",
-    "project_id": "shoeshop-b6479",
-    "storage_bucket": "shoeshop-b6479.firebasestorage.app"
+    "project_number": "816311600450",
+    "project_id": "peaksneaker",
+    "storage_bucket": "peaksneaker.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1081179926806:android:727ce4a2db2323aaa4a037",
+        "mobilesdk_app_id": "1:816311600450:android:e97a1bcdb86ef92dc974db",
         "android_client_info": {
           "package_name": "com.example.shoeshop"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "816311600450-0gr1gi3bpacvpk03qnmpilo7sqqi8472.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCHGRY48-t1SDNe9lLW2M3taCU458MOh3k"
+          "current_key": "AIzaSyDzvU5ZhqSEPx3DJyDWNcCCDTmhiCuHmL4"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "816311600450-0gr1gi3bpacvpk03qnmpilo7sqqi8472.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
