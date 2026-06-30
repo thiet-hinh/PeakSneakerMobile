@@ -1,6 +1,7 @@
 package com.example.shoestore.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString(exclude = {"product", "images"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ProductVariant {
 
     @Id
@@ -37,14 +39,17 @@ public class ProductVariant {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_variant_product"))
+    @JsonIgnore
     private Product product;
 
     @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     private List<Image> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "productVariant")
     @Builder.Default
+    @JsonIgnore
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @PrePersist

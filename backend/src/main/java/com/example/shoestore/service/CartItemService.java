@@ -1,6 +1,7 @@
 package com.example.shoestore.service;
 
 import com.example.shoestore.dto.request.CheckoutPreviewRequest;
+import com.example.shoestore.dto.response.CartItemResponse;
 import com.example.shoestore.dto.response.CheckoutCartItem;
 import com.example.shoestore.dto.response.CheckoutPreviewResponse;
 import com.example.shoestore.dto.response.ShippingAddressCheckout;
@@ -47,16 +48,28 @@ public class CartItemService {
                         .cart(cart).productVariant(variant).quantity(quantity).build()));
     }
 
+    /**
+     * Cập nhật số lượng 1 cart item.
+     * - quantity <= 0  -> xóa item, trả về null (controller sẽ trả 204).
+     * - quantity vượt tồn kho -> ném RuntimeException, controller trả 400.
+     */
     @Transactional
-    public CartItem updateQuantity(Integer cartItemId, Integer quantity) {
+    public CartItemResponse updateQuantity(Integer cartItemId, Integer quantity) {
         CartItem item = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found: " + cartItemId));
+                .orElseThrow(() -> new RuntimeException("Sản phẩm không có trong giỏ hàng: " + cartItemId));
+
         if (quantity <= 0) {
             cartItemRepository.delete(item);
             return null;
         }
+
+        if (quantity > item.getProductVariant().getStockQuantity()) {
+            throw new RuntimeException("Số lượng vượt quá tồn kho hiện có!");
+        }
+
         item.setQuantity(quantity);
-        return cartItemRepository.save(item);
+        CartItem saved = cartItemRepository.save(item);
+        return cartService.toResponse(saved);
     }
 
     @Transactional
@@ -90,7 +103,7 @@ public class CartItemService {
                 throw new RuntimeException(product.getName() + " không đủ số lượng trong kho.");
             }
 
-            String image = imageRepository.findFirstByProductVariantIdAndIsPrimaryTrue(variant.getId())
+            String image = imageRepository.findFirstByProductVariantIdOrderByIsPrimaryDescIdAsc(variant.getId())
                     .map(Image::getImageName)
                     .orElseGet(() -> imageRepository.findFirstByProductIdAndIsPrimaryTrue(product.getId())
                             .map(Image::getImageName).orElse(""));

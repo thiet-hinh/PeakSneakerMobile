@@ -39,16 +39,13 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = productList[position]
 
-        // 1. Hiển thị thông tin chữ dạng text cơ bản từ thông số thông minh của Model
         holder.tvBrand.text = product.brandName
         holder.tvName.text = product.name
         holder.tvRating.text = product.rating
         holder.tvSold.text = "| Đã bán ${product.sold}"
 
-        // 2. Định dạng giá tiền tệ sang VND (Ví dụ: 3.500.000đ)
         holder.tvPrice.text = formatCurrency(product.price)
 
-        // 3. Xử lý hiển thị Giá gốc và hiệu ứng gạch ngang (Nếu có giảm giá)
         holder.tvOriginalPrice?.let { tvOriginal ->
             if (product.discountRate > 0) {
                 tvOriginal.visibility = View.VISIBLE
@@ -60,14 +57,12 @@ class ProductAdapter(
             }
         }
 
-        // 4. Sử dụng Glide để tải ảnh URL từ Cloudinary, nếu lỗi/trống thì dùng ảnh mặc định
         Glide.with(holder.itemView.context)
             .load(product.imageUrl)
             .placeholder(R.drawable.banner_placeholder)
             .error(R.drawable.banner_placeholder)
             .into(holder.imgProduct)
 
-        // 5. Truyền ID sản phẩm thực tế sang màn hình chi tiết khi click
         holder.itemView.setOnClickListener {
             val context = holder.itemView.context
             val intent = Intent(context, ProductDetailActivity::class.java).apply {
@@ -79,9 +74,7 @@ class ProductAdapter(
 
     override fun getItemCount() = productList.size
 
-    /**
-     * Hàm bổ trợ định dạng số Double sang định dạng tiền tệ Việt Nam (Ví dụ: 2450000 -> 2.450.000đ)
-     */
+
     private fun formatCurrency(amount: Double): String {
         val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
         return "${formatter.format(amount)}đ"

@@ -4,24 +4,24 @@ import com.google.gson.annotations.SerializedName
 
 data class Product(
     @SerializedName("id") val id: Int,
-    @SerializedName("productName") val productName: String?, // Nhận từ DTO
-    @SerializedName("name") val rawName: String?,            // Nhận từ Entity gốc
-    @SerializedName("brandName") val brandNameDto: String?,  // Nhận từ DTO
-    @SerializedName("brand") val brandEntity: BrandEntity?,  // Nhận từ Entity gốc
+    @SerializedName("productName") val productName: String?,
+    @SerializedName("name") val rawName: String?,
+    @SerializedName("brandName") val brandNameDto: String?,
+    @SerializedName("brand") val brandEntity: BrandEntity?,
     @SerializedName("basePrice") val basePrice: Double,
     @SerializedName("price") val price: Double,
     @SerializedName("discountRate") val discountRate: Double,
     @SerializedName("imageUrl") val imageUrl: String?,
+    @SerializedName("description") val description: String?,
     @SerializedName("averageRating") val averageRating: Double?,
-    @SerializedName("soldQuantity") val soldQuantity: Long?
+    @SerializedName("soldQuantity") val soldQuantity: Long?,
+    @SerializedName("variants") val variants: List<ProductVariant>? = listOf()
 ) {
-    // Các thuộc tính thông minh bổ trợ cho Adapter hiển thị mà không cần sửa code cũ
     val name: String
         get() = productName ?: rawName ?: "Giày thời trang"
 
     val brandName: String
         get() = brandNameDto ?: brandEntity?.name ?: "Shoe Store"
-
     val rating: String
         get() = String.format("%.1f", averageRating ?: 5.0)
 
@@ -32,7 +32,7 @@ data class Product(
         get() = if (discountRate <= 1.0) discountRate * 100 else discountRate
 }
 
-// Lớp bổ trợ đọc thực thể thương hiệu lồng trong Entity Product
+
 data class BrandEntity(
     @SerializedName("id") val id: Int,
     @SerializedName("name") val name: String

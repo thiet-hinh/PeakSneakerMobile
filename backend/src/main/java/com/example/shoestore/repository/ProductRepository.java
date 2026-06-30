@@ -23,12 +23,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findByGenderAndIsDeletedFalse(Gender gender);
 
 
-    //tìm bằng thanh tìm kiếm theo tên
     @Query("SELECT p FROM Product p WHERE p.isDeleted = false " +
            "AND LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Product> searchByName(@Param("keyword") String keyword);
 
-    //tìm bằng bộ lọc
     @Query("""
     SELECT new com.example.shoestore.dto.response.ProductCardDTO(
         p.id, 
@@ -58,7 +56,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     GROUP BY p.id, p.name, b.name, p.basePrice, p.discountRate, p.price
 """)
     List<ProductCardDTO> findProductCards(
-            @Param("keyword") String keyword, // Thêm param keyword vào đầu tiên
+            @Param("keyword") String keyword,
             @Param("gender") Gender gender,
             @Param("brandId") Integer brandId,
             @Param("minPrice") BigDecimal minPrice,
