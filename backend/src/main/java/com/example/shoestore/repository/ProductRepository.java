@@ -63,4 +63,37 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("maxPrice") BigDecimal maxPrice,
             @Param("size") String size
     );
+    @Query(value = """
+        SELECT p.id FROM product p
+        INNER JOIN (
+            SELECT brand_id, MAX(created_at) AS max_created
+            FROM product
+            WHERE is_featured = 1 AND is_deleted = 0
+            GROUP BY brand_id
+        ) latest ON p.brand_id = latest.brand_id AND p.created_at = latest.max_created
+        WHERE p.is_featured = 1 AND p.is_deleted = 0
+        """, nativeQuery = true)
+    List<Integer> findFeaturedProductIdsOneEachBrand();
+
+    @Query("""
+    SELECT new com.example.shoestore.dto.response.ProductCardDTO(
+        p.id, 
+        p.name, 
+        COALESCE(
+            (SELECT img.imageName FROM Image img WHERE img.product.id = p.id AND img.isPrimary = true ORDER BY img.id ASC LIMIT 1),
+            (SELECT img.imageName FROM Image img WHERE img.productVariant.product.id = p.id AND img.isPrimary = true ORDER BY img.id ASC LIMIT 1),
+            (SELECT img.imageName FROM Image img WHERE img.product.id = p.id ORDER BY img.id ASC LIMIT 1)
+        ), 
+        b.name, 
+        p.basePrice, 
+        p.discountRate, 
+        p.price,
+        (SELECT AVG(r.star) FROM Review r WHERE r.product.id = p.id), 
+        (SELECT COALESCE(SUM(oi.quantity), 0L) FROM OrderItem oi WHERE oi.productVariant.product.id = p.id)
+    )
+    FROM Product p 
+    LEFT JOIN p.brand b 
+    WHERE p.id IN :ids
+    """)
+    List<ProductCardDTO> findProductCardsByIds(@Param("ids") List<Integer> ids);
 }

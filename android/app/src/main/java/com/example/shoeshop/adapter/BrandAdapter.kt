@@ -6,10 +6,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.shoeshop.R
-import com.example.shoeshop.model.Brand 
+import com.example.shoeshop.model.Brand
 
-class BrandAdapter(private val brandList: List<Brand>) : RecyclerView.Adapter<BrandAdapter.BrandViewHolder>() {
+class BrandAdapter(
+    private val brandList: List<Brand>,
+    private val onBrandClick: ((Brand) -> Unit)? = null
+) : RecyclerView.Adapter<BrandAdapter.BrandViewHolder>() {
 
     class BrandViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imgBrand: ImageView = view.findViewById(R.id.imgBrand)
@@ -25,11 +29,14 @@ class BrandAdapter(private val brandList: List<Brand>) : RecyclerView.Adapter<Br
         val brand = brandList[position]
         holder.tvBrandName.text = brand.name
 
-      
-        if (brand.imageResId != 0) {
-            holder.imgBrand.setImageResource(brand.imageResId)
-        } else {
-            holder.imgBrand.setImageResource(R.drawable.banner_placeholder)
+        Glide.with(holder.itemView.context)
+            .load(brand.imageUrl)
+            .placeholder(R.drawable.banner_placeholder)
+            .error(R.drawable.banner_placeholder)
+            .into(holder.imgBrand)
+
+        holder.itemView.setOnClickListener {
+            onBrandClick?.invoke(brand)
         }
     }
 

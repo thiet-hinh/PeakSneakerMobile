@@ -55,7 +55,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         binding.btnConfirm.text = "Đang gửi..."
 
         val actionCodeSettings = ActionCodeSettings.newBuilder()
-            .setUrl("https://shoeshop-b6479.firebaseapp.com")
+            .setUrl("https://peaksneaker.firebaseapp.com")
             .setHandleCodeInApp(true)
             .setAndroidPackageName(packageName, true, "1")
             .build()

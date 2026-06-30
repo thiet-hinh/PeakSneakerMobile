@@ -25,7 +25,19 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CloudinaryService cloudinaryService;
     private final ProductVariantRepository productVariantRepository;
-
+    public List<ProductCardDTO> getFeaturedOneEachBrand() {
+        List<Integer> ids = productRepository.findFeaturedProductIdsOneEachBrand();
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        List<ProductCardDTO> cards = productRepository.findProductCardsByIds(ids);
+        cards.forEach(card -> {
+            if (card.getImageUrl() != null) {
+                card.setImageUrl(cloudinaryService.createImageUrl(card.getImageUrl()));
+            }
+        });
+        return cards;
+    }
     public List<ProductCardDTO> getAllCardProduct(String keyword, Gender gender, Integer brandId, BigDecimal minPrice, BigDecimal maxPrice, String size){
         List<ProductCardDTO> cards = productRepository.findProductCards(keyword, gender, brandId, minPrice, maxPrice, size);
         cards.forEach(card -> {
