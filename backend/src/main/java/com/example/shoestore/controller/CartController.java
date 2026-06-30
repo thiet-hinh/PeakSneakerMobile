@@ -1,7 +1,9 @@
 package com.example.shoestore.controller;
 
-import com.example.shoestore.entity.CartItem;
+import com.example.shoestore.dto.request.CartRequest;
+import com.example.shoestore.dto.response.CartItemResponse;
 import com.example.shoestore.service.CartItemService;
+import com.example.shoestore.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,35 +16,46 @@ import java.util.List;
 public class CartController {
 
     private final CartItemService cartItemService;
+    private final CartService cartService;
 
-    @GetMapping("/user/{userId}/")
-    public ResponseEntity<List<CartItem>> getCart(@PathVariable Integer userId) {
-        return ResponseEntity.ok(cartItemService.findByUserId(userId));
+    @PostMapping("/add")
+    public ResponseEntity<String> addToCart(@RequestBody CartRequest request) {
+        try {
+            cartService.addToCart(request);
+            return ResponseEntity.ok("Thêm vào giỏ hàng thành công!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @PostMapping("/user/{userId}//items")
-    public ResponseEntity<CartItem> addItem(
-            @PathVariable Integer userId,
-            @RequestParam Integer variantId,
-            @RequestParam(defaultValue = "1") Integer quantity) {
-        return ResponseEntity.ok(cartItemService.addToCart(userId, variantId, quantity));
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<CartItemResponse>> getCart(@PathVariable Integer userId) {
+        return ResponseEntity.ok(cartService.getCartByUserId(userId));
     }
 
-    @PatchMapping("/user/{userId}//items/{itemId}")
-    public ResponseEntity<CartItem> updateQuantity(
+    // Sửa số lượng 1 item trong giỏ. Nếu quantity <= 0 thì item sẽ bị xóa luôn (trả 204).
+    @PatchMapping("/items/{itemId}")
+    public ResponseEntity<?> updateQuantity(
             @PathVariable Integer itemId,
             @RequestParam Integer quantity) {
-        CartItem updated = cartItemService.updateQuantity(itemId, quantity);
-        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.noContent().build();
+        try {
+            CartItemResponse updated = cartItemService.updateQuantity(itemId, quantity);
+            if (updated == null) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @DeleteMapping("/user/{userId}//items/{itemId}")
+    @DeleteMapping("/items/{itemId}")
     public ResponseEntity<Void> removeItem(@PathVariable Integer itemId) {
         cartItemService.removeItem(itemId);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/user/{userId}/")
+    @DeleteMapping("/user/{userId}")
     public ResponseEntity<Void> clearCart(@PathVariable Integer userId) {
         cartItemService.clearCart(userId);
         return ResponseEntity.noContent().build();

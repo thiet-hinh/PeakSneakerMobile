@@ -1,30 +1,39 @@
-package com.example.shoeshop.adapter // Đổi theo package của bạn
+package com.example.shoeshop.adapter
 
+import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.shoeshop.R
 import com.example.shoeshop.model.Cart
 import java.text.NumberFormat
 import java.util.Locale
+
 class CartAdapter(
-    private val itemList: List<Cart>,
-    private val onTotalChanged: () -> Unit
+    private var itemList: List<Cart>,
+    private val onTotalChanged: () -> Unit,
+    // oldQuantity được truyền kèm để Activity có thể revert lại UI nếu gọi API thất bại
+    private val onQuantityChanged: (item: Cart, newQuantity: Int, oldQuantity: Int) -> Unit,
+    private val onRemoveItem: (item: Cart) -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
-    class CartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val cbSelect: CheckBox = view.findViewById(R.id.cbSelect)
-        val txtName: TextView = view.findViewById(R.id.txtProductName)
-        val txtSize: TextView = view.findViewById(R.id.txtProductSize)
-        val txtPrice: TextView = view.findViewById(R.id.txtProductPrice)
-        val txtQuantity: TextView = view.findViewById(R.id.txtQuantity)
-
-        val btnPlus: ImageView = view.findViewById(R.id.btnPlus)
-        val btnMinus: ImageView = view.findViewById(R.id.btnMinus)
+    class CartViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val cbSelect: CheckBox = itemView.findViewById(R.id.cbSelect)
+        val imgProduct: ImageView = itemView.findViewById(R.id.imgProduct)
+        val txtProductName: TextView = itemView.findViewById(R.id.txtProductName)
+        val txtProductColor: TextView = itemView.findViewById(R.id.txtProductColor)
+        val txtProductSize: TextView = itemView.findViewById(R.id.txtProductSize)
+        val txtProductPrice: TextView = itemView.findViewById(R.id.txtProductPrice)
+        val txtQuantity: TextView = itemView.findViewById(R.id.txtQuantity)
+        val btnMinus: ImageView = itemView.findViewById(R.id.btnMinus)
+        val btnPlus: ImageView = itemView.findViewById(R.id.btnPlus)
+        val btnRemove: ImageView = itemView.findViewById(R.id.btnRemove)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
@@ -35,35 +44,90 @@ class CartAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = itemList[position]
 
-        holder.txtName.text = item.name
-        holder.txtSize.text = item.size
+        // 1. Gán dữ liệu chữ công khai (Tên, Size, Màu, Số lượng)
+        holder.txtProductName.text = item.name
+        holder.txtProductColor.text = item.color
+        holder.txtProductSize.text = item.size
         holder.txtQuantity.text = item.quantity.toString()
 
+        // Định dạng hiển thị tiền tệ Việt Nam (Ví dụ: 3.290.000đ)
         val format = NumberFormat.getInstance(Locale("vi", "VN"))
-        holder.txtPrice.text = "${format.format(item.price)}đ"
+        holder.txtProductPrice.text = "${format.format(item.price)}đ"
 
+        // 2. Gán trạng thái Checkbox tích chọn sản phẩm
         holder.cbSelect.setOnCheckedChangeListener(null)
         holder.cbSelect.isChecked = item.isChecked
-
         holder.cbSelect.setOnCheckedChangeListener { _, isChecked ->
             item.isChecked = isChecked
             onTotalChanged()
         }
 
-        holder.btnPlus.setOnClickListener {
-            item.quantity++
-            notifyItemChanged(position)
-            onTotalChanged()
+        // 3. XỬ LÝ ĐƯỜNG DẪN VÀ TẢI ẢNH ĐỘNG QUA GLIDE
+        val imagePath = item.image ?: ""
+        val imageUrl = if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+            imagePath
+        } else {
+            "http://10.0.2.2:8080/images/$imagePath"
         }
 
+        Glide.with(holder.itemView.context)
+            .load(imageUrl)
+            .placeholder(R.drawable.banner_placeholder)
+            .error(android.R.drawable.stat_notify_error)
+            .into(holder.imgProduct)
+
+        // 4. Bấm nút Tăng (+) số lượng — chặn nếu đã chạm trần tồn kho
+        holder.btnPlus.setOnClickListener {
+            if (item.quantity >= item.stockQuantity) {
+                Toast.makeText(holder.itemView.context, "Đã đạt số lượng tối đa trong kho", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val oldQty = item.quantity
+            val newQty = oldQty + 1
+            item.quantity = newQty
+            holder.txtQuantity.text = newQty.toString()
+            onTotalChanged()
+            onQuantityChanged(item, newQty, oldQty)
+        }
+
+        // 5. Bấm nút Giảm (-) số lượng — giảm tới 1 thì dừng, không tự xóa item
         holder.btnMinus.setOnClickListener {
             if (item.quantity > 1) {
-                item.quantity--
-                notifyItemChanged(position)
+                val oldQty = item.quantity
+                val newQty = oldQty - 1
+                item.quantity = newQty
+                holder.txtQuantity.text = newQty.toString()
                 onTotalChanged()
+                onQuantityChanged(item, newQty, oldQty)
             }
+        }
+
+        // 6. Bấm nút xóa (x) — hỏi xác nhận rồi mới xóa
+        holder.btnRemove.setOnClickListener {
+            AlertDialog.Builder(holder.itemView.context)
+                .setTitle("Xóa sản phẩm")
+                .setMessage("Bạn có chắc muốn xóa \"${item.name}\" khỏi giỏ hàng?")
+                .setPositiveButton("Xóa") { dialog, _ ->
+                    onRemoveItem(item)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Hủy") { dialog, _ -> dialog.dismiss() }
+                .show()
         }
     }
 
     override fun getItemCount(): Int = itemList.size
+
+    fun updateData(newList: List<Cart>) {
+        this.itemList = newList
+        notifyDataSetChanged()
+    }
+
+    // Dùng khi cần revert lại quantity trên UI sau khi gọi API thất bại, tránh load lại cả danh sách
+    fun refreshItem(cartItemId: Int) {
+        val index = itemList.indexOfFirst { it.cartItemId == cartItemId }
+        if (index != -1) {
+            notifyItemChanged(index)
+        }
+    }
 }

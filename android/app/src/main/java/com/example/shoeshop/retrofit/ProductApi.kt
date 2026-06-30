@@ -1,15 +1,18 @@
 package com.example.shoeshop.api
 
+import com.example.shoeshop.dto.respone.CartItemResponse
+import com.example.shoeshop.model.CartRequest
 import com.example.shoeshop.model.Product
+import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Path // Thêm import Path
-import retrofit2.http.Query
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.*
 
 interface ProductApi {
     @GET("api/product")
     fun getProducts(
-        @Query("keyword") keyword: String? = null, // Thêm dòng này
+        @Query("keyword") keyword: String? = null,
         @Query("gender") gender: String? = null,
         @Query("brandId") brandId: Int? = null,
         @Query("minPrice") minPrice: Double? = null,
@@ -22,4 +25,39 @@ interface ProductApi {
 
     @GET("api/product/{id}")
     fun getProductById(@Path("id") id: Int): Call<Product>
+
+    @POST("api/cart/add")
+    fun addToCart(@Body request: CartRequest): Call<ResponseBody>
+
+    @GET("api/cart/{userId}")
+    fun getCart(@Path("userId") userId: Int): Call<List<CartItemResponse>>
+
+    // Sửa số lượng 1 item trong giỏ. Backend trả về item đã cập nhật (CartItemResponse).
+    // Nếu quantity <= 0, backend sẽ xóa item và trả 204 (body null).
+    @PATCH("api/cart/items/{itemId}")
+    fun updateQuantity(
+        @Path("itemId") itemId: Int,
+        @Query("quantity") quantity: Int
+    ): Call<CartItemResponse>
+
+    // Xóa hẳn 1 item khỏi giỏ hàng (bấm nút "x")
+    @DELETE("api/cart/items/{itemId}")
+    fun removeCartItem(@Path("itemId") itemId: Int): Call<ResponseBody>
+
+    // Xóa toàn bộ giỏ hàng của 1 user (vd: sau khi đặt hàng thành công)
+    @DELETE("api/cart/user/{userId}")
+    fun clearCart(@Path("userId") userId: Int): Call<ResponseBody>
+
+    companion object {
+        // ⚠️ Nhớ thay đổi IP/Port này cho đúng với địa chỉ chạy Backend thực tế của bạn nhé
+        private const val BASE_URL = "http://10.0.2.2:8080/"
+
+        val productApi: ProductApi by lazy {
+            Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ProductApi::class.java)
+        }
+    }
 }

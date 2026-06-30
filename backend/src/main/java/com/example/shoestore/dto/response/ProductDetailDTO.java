@@ -1,6 +1,9 @@
 package com.example.shoestore.dto.response;
 
+import com.example.shoestore.entity.ProductVariant;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ProductDetailDTO(
         Integer id,
@@ -12,5 +15,6 @@ public record ProductDetailDTO(
         BigDecimal discountRate,
         String brandName,
         String imageUrl,
-        String rating
+        String rating,
+        List<ProductVariant> variants
 ) {}

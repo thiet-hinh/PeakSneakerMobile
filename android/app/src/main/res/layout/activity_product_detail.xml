@@ -85,7 +85,7 @@
                     android:id="@+id/tvDetailBrand"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="NIKE"
+                    android:text="BRAND"
                     android:textColor="#444748"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -94,7 +94,7 @@
                     android:id="@+id/tvDetailName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nike Air Max Zoom Pegasus 38"
+                    android:text="Tên sản phẩm"
                     android:textColor="#1C1B1B"
                     android:textSize="22sp"
                     android:textStyle="bold"
@@ -116,7 +116,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="4.8"
+                        android:text="5.0"
                         android:textSize="12sp"
                         android:textColor="#1C1B1B"
                         android:textStyle="bold"/>
@@ -139,7 +139,7 @@
                         android:id="@+id/tvDetailPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="3.290.000đ"
+                        android:text="0đ"
                         android:textColor="#1C1B1B"
                         android:textSize="28sp"
                         android:textStyle="bold"/>
@@ -149,7 +149,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="4.500.000đ"
+                        android:text="0đ"
                         android:textColor="#747878"
                         android:textSize="14sp"/>
 
@@ -161,7 +161,7 @@
                         android:background="@drawable/bg_discount_badge"
                         android:paddingHorizontal="6dp"
                         android:paddingVertical="2dp"
-                        android:text="-27%"
+                        android:text="0%"
                         android:textColor="#93000A"
                         android:textSize="10sp"
                         android:textStyle="bold"/>
@@ -177,14 +177,11 @@
                     android:textStyle="bold"/>
 
                 <LinearLayout
+                    android:id="@+id/layoutColors"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:orientation="horizontal">
-                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_red" android:layout_marginEnd="16dp"/>
-                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_black" android:layout_marginEnd="16dp"/>
-                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_blue" android:layout_marginEnd="16dp"/>
-                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_gray"/>
                 </LinearLayout>
 
                 <RelativeLayout
@@ -212,18 +209,11 @@
                 </RelativeLayout>
 
                 <GridLayout
+                    android:id="@+id/gridSizes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:columnCount="4">
-                    <TextView android:text="38" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
-                    <TextView android:text="39" style="@style/SizeChipStyle" android:background="@drawable/bg_size_selected"/>
-                    <TextView android:text="40" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
-                    <TextView android:text="41" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
-                    <TextView android:text="42" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
-                    <TextView android:text="43" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
-                    <TextView android:text="44" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected" android:alpha="0.4"/>
-                    <TextView android:text="45" style="@style/SizeChipStyle" android:background="@drawable/bg_size_unselected"/>
                 </GridLayout>
 
                 <TextView
@@ -241,7 +231,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:lineSpacingExtra="4dp"
-                    android:text="Mô tả sản phẩm sẽ tải từ database..."
+                    android:text="Mô tả sản phẩm đang tải..."
                     android:textColor="#444748"
                     android:textSize="14sp"/>
 
@@ -325,6 +315,7 @@
         android:elevation="8dp">
 
         <LinearLayout
+            android:id="@+id/btnAddToCart"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@drawable/bg_btn_buy_now"

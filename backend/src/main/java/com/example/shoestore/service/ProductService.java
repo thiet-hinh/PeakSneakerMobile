@@ -4,8 +4,10 @@ import com.example.shoestore.dto.request.ProductFilterRequest;
 import com.example.shoestore.dto.response.ProductCardDTO;
 import com.example.shoestore.dto.response.ProductDetailDTO;
 import com.example.shoestore.entity.Product;
+import com.example.shoestore.entity.ProductVariant;
 import com.example.shoestore.enums.Gender;
 import com.example.shoestore.repository.ProductRepository;
+import com.example.shoestore.repository.ProductVariantRepository;
 import com.example.shoestore.thirdparty.cloudinary.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CloudinaryService cloudinaryService;
+    private final ProductVariantRepository productVariantRepository;
 
     public List<ProductCardDTO> getAllCardProduct(String keyword, Gender gender, Integer brandId, BigDecimal minPrice, BigDecimal maxPrice, String size){
         List<ProductCardDTO> cards = productRepository.findProductCards(keyword, gender, brandId, minPrice, maxPrice, size);
@@ -32,7 +35,6 @@ public class ProductService {
         });
         return cards;
     }
-
 
     public Product findById(Integer id) {
         return productRepository.findById(id)
@@ -78,31 +80,32 @@ public class ProductService {
         product.setIsDeleted(true);
         productRepository.save(product);
     }
+
     @Transactional(readOnly = true)
     public ProductDetailDTO getDetailById(Integer id) {
-        // 1. Tìm sản phẩm trong DB, không thấy thì báo lỗi
+        // 1. SỬA LẠI: Tìm đúng thực thể Product từ ProductRepository
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với ID: " + id));
 
         // 2. Lấy tên Brand an toàn
         String brandName = (product.getBrand() != null) ? product.getBrand().getName() : "Shoe Shop";
 
-        // 3. Lấy imageName và bọc qua CloudinaryService để tạo URL chuẩn
+        // 3. Lấy imageName và bọc qua Cloudinary Service
         String imageUrl = "";
         if (product.getImages() != null && !product.getImages().isEmpty()) {
-            // Lấy thuộc tính imageName thay vì getUrl() bị lỗi lúc trước
             String rawImageName = product.getImages().get(0).getImageName();
-
             if (rawImageName != null) {
-                // Chuyển đổi thành link Cloudinary hoàn chỉnh giống như trang danh sách sản phẩm
                 imageUrl = cloudinaryService.createImageUrl(rawImageName);
             }
         }
 
         // 4. Tính toán rating trung bình hoặc để mặc định
-        String rating = "4.8";
+        String rating = "5.0";
 
-        // 5. Đóng gói gọn gàng chuyển về cho Android
+        // 5. THÊM MỚI: Gọi Repository lấy toàn bộ danh sách biến thể (Màu, Size, Kho) của sản phẩm này lên
+        List<ProductVariant> variants = productVariantRepository.findByProductId(id);
+
+        // 6. Đóng gói gọn gàng chuyển về cho Android (Nhớ truyền biến variants vào cuối constructor)
         return new ProductDetailDTO(
                 product.getId(),
                 product.getName(),
@@ -113,9 +116,11 @@ public class ProductService {
                 product.getDiscountRate(),
                 brandName,
                 imageUrl,
-                rating
+                rating,
+                variants // 👈 ĐÂY CHÍNH LÀ CHÌA KHÓA để Android nhận được danh sách màu và kích cỡ!
         );
     }
+
     @Transactional
     public void deleteById(Integer id) {
         productRepository.deleteById(id);

@@ -23,4 +23,5 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Modifying
     @Query("UPDATE ProductVariant pv SET pv.stockQuantity = pv.stockQuantity + :quantity WHERE pv.id = :id")
     int increaseStock(@Param("id") Integer id, @Param("quantity") Integer quantity);
+
 }

@@ -38,9 +38,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingBottom="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topBar">
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toTopOf="@+id/bottomBar">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -101,7 +100,8 @@
                             android:id="@+id/txtSubTotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="5.140.000đ"
+                            android:text="0đ"
+                            tools:text="5.140.000đ"
                             android:textColor="#444748"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -179,7 +179,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/plusjakartasans_extrabold"
-                            android:text="5.140.000đ"
+                            android:text="0đ"
+                            tools:text="5.140.000đ"
                             android:textColor="#5D5F5F"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -190,6 +191,34 @@
     </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
+        android:id="@+id/layoutEmptyCart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🛒"
+            android:textSize="64sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Giỏ hàng của bạn đang trống"
+            android:textColor="#9E9E9E"
+            android:layout_marginTop="8dp"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
