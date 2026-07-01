@@ -13,9 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoeshop.R
 import com.example.shoeshop.adapter.CartAdapter
-import com.example.shoeshop.model.Cart
 import com.example.shoeshop.api.ProductApi
 import com.example.shoeshop.dto.respone.CartItemResponse
+import com.example.shoeshop.model.Cart
+import com.example.shoeshop.utils.PrefManager
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -34,29 +35,36 @@ class CartActivity : AppCompatActivity() {
     private lateinit var rvCartItems: RecyclerView
     private lateinit var layoutEmptyCart: LinearLayout
 
-    private val userId = 1
+    private var userId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_cart)
 
+        // Lấy user hiện tại từ PrefManager
+        val currentUser = PrefManager.getUser(this)
+        if (currentUser == null) {
+            Toast.makeText(this, "Vui lòng đăng nhập để xem giỏ hàng", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+        userId = currentUser.id
+
         txtSubTotal = findViewById(R.id.txtSubTotal)
         txtTotal = findViewById(R.id.txtTotal)
         layoutEmptyCart = findViewById(R.id.layoutEmptyCart)
         rvCartItems = findViewById(R.id.rvCartItems)
-        val btnBack = findViewById<ImageView>(R.id.btnBack)
 
+        val btnBack = findViewById<ImageView>(R.id.btnBack)
         btnBack.setOnClickListener { finish() }
 
-        btnCheckout = findViewById<Button>(R.id.btnCheckout)
+        btnCheckout = findViewById(R.id.btnCheckout)
         btnCheckout.setOnClickListener {
             val selectedIds = myCartList.filter { it.isChecked }.map { it.cartItemId }
-
             if (selectedIds.isEmpty()) {
                 Toast.makeText(this, "Vui lòng chọn ít nhất một sản phẩm để thanh toán", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             val intent = Intent(this, CheckoutActivity::class.java).apply {
                 putIntegerArrayListExtra("SELECTED_CART_ITEM_IDS", ArrayList(selectedIds))
             }
@@ -66,15 +74,11 @@ class CartActivity : AppCompatActivity() {
         rvCartItems.layoutManager = LinearLayoutManager(this)
         cartAdapter = CartAdapter(
             itemList = myCartList,
-            onTotalChanged = {
-                updateTotalValue()
-            },
+            onTotalChanged = { updateTotalValue() },
             onQuantityChanged = { item, newQuantity, oldQuantity ->
                 updateCartItemQuantityInDB(item, newQuantity, oldQuantity)
             },
-            onRemoveItem = { item ->
-                removeCartItem(item)
-            }
+            onRemoveItem = { item -> removeCartItem(item) }
         )
         rvCartItems.adapter = cartAdapter
 
@@ -86,7 +90,6 @@ class CartActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<CartItemResponse>>, response: Response<List<CartItemResponse>>) {
                 if (response.isSuccessful && response.body() != null) {
                     val dtoList = response.body()!!
-
                     myCartList = dtoList.map { dto ->
                         Cart(
                             cartItemId = dto.cartItemId,
@@ -102,7 +105,6 @@ class CartActivity : AppCompatActivity() {
                             isChecked = false
                         )
                     }
-
                     updateEmptyState()
                     cartAdapter.updateData(myCartList)
                     updateTotalValue()
@@ -173,16 +175,13 @@ class CartActivity : AppCompatActivity() {
 
     private fun updateTotalValue() {
         var totalCost = 0.0
-
         for (item in myCartList) {
             if (item.isChecked) {
                 totalCost += (item.price * item.quantity)
             }
         }
-
         val format = NumberFormat.getInstance(Locale("vi", "VN"))
         val formattedPrice = "${format.format(totalCost)}đ"
-
         txtSubTotal.text = formattedPrice
         txtTotal.text = formattedPrice
     }

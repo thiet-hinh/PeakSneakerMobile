@@ -11,6 +11,7 @@ import com.example.shoeshop.model.CartRequest
 import com.example.shoeshop.model.Product
 import com.example.shoeshop.model.ProductVariant
 import com.example.shoeshop.retrofit.ProductRetrofit
+import com.example.shoeshop.utils.PrefManager
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -32,6 +33,7 @@ class ProductDetailActivity : AppCompatActivity() {
     private lateinit var btnBack: ImageView
 
     private var productId: Int = -1
+    private var currentUserId: Int = -1
     private var allVariants: List<ProductVariant> = listOf()
 
     private var selectedColor: String? = null
@@ -40,6 +42,15 @@ class ProductDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_detail)
+
+        // Lấy user hiện tại từ PrefManager
+        val currentUser = PrefManager.getUser(this)
+        if (currentUser == null) {
+            Toast.makeText(this, "Vui lòng đăng nhập để tiếp tục", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+        currentUserId = currentUser.id
 
         productId = intent.getIntExtra("PRODUCT_ID", 1)
 
@@ -78,7 +89,6 @@ class ProductDetailActivity : AppCompatActivity() {
                     tvDetailPrice.text = String.format("%,.0fđ", product.price)
                     tvDetailOriginalPrice.text = String.format("%,.0fđ", product.basePrice)
                     tvDetailDiscount.text = String.format("-%.0f%%", product.discount)
-
                     tvDetailDescription.text = product.description ?: "Không có mô tả cho sản phẩm này."
 
                     Glide.with(this@ProductDetailActivity)
@@ -89,7 +99,10 @@ class ProductDetailActivity : AppCompatActivity() {
                     val uniqueColors = allVariants.mapNotNull { it.color }.distinct()
                     renderColors(uniqueColors)
 
-                    val uniqueSizes = allVariants.filter { it.stockQuantity > 0 }.mapNotNull { it.size }.distinct()
+                    val uniqueSizes = allVariants
+                        .filter { it.stockQuantity > 0 }
+                        .mapNotNull { it.size }
+                        .distinct()
                     renderSizes(uniqueSizes)
                 }
             }
@@ -110,9 +123,8 @@ class ProductDetailActivity : AppCompatActivity() {
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, heightInDp)
             params.setMargins(0, 0, marginInDp, 0)
             textView.layoutParams = params
-
             textView.text = colorName
-            textView.setPadding(32, 0, 32, 0) // Tạo khoảng cách đệm lề cho chữ dài (vd: "Black/White Check")
+            textView.setPadding(32, 0, 32, 0)
             textView.gravity = Gravity.CENTER
             textView.setBackgroundResource(R.drawable.bg_size_unselected)
             textView.setTextColor(resources.getColor(android.R.color.black, null))
@@ -133,7 +145,6 @@ class ProductDetailActivity : AppCompatActivity() {
                     .filter { it.color == selectedColor && it.stockQuantity > 0 }
                     .mapNotNull { it.size }
                     .distinct()
-
                 renderSizes(availableSizes)
             }
             layoutColors.addView(textView)
@@ -153,7 +164,6 @@ class ProductDetailActivity : AppCompatActivity() {
             params.height = heightInDp
             params.setMargins(0, 0, marginInDp, marginInDp)
             textView.layoutParams = params
-
             textView.text = sizeValue
             textView.gravity = Gravity.CENTER
             textView.setBackgroundResource(R.drawable.bg_size_unselected)
@@ -185,7 +195,7 @@ class ProductDetailActivity : AppCompatActivity() {
         }
 
         val cartRequest = CartRequest(
-            userId = 1,
+            userId = currentUserId,
             productId = productId,
             color = selectedColor!!,
             size = selectedSize!!
@@ -194,9 +204,14 @@ class ProductDetailActivity : AppCompatActivity() {
         ProductRetrofit.api.addToCart(cartRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@ProductDetailActivity, "Đã thêm [$selectedColor - Size $selectedSize] vào giỏ hàng!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ProductDetailActivity,
+                        "Đã thêm [$selectedColor - Size $selectedSize] vào giỏ hàng!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
-                    Toast.makeText(this@ProductDetailActivity, "Thêm vào giỏ hàng thất bại!", Toast.LENGTH_SHORT).show()
+                    val errorMsg = response.errorBody()?.string() ?: "Thêm vào giỏ hàng thất bại!"
+                    Toast.makeText(this@ProductDetailActivity, errorMsg, Toast.LENGTH_SHORT).show()
                 }
             }
 
