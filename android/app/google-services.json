@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "816311600450-17v41oopauan6mjdihna72pv7lseeu4h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.shoeshop",
+            "certificate_hash": "bb985ee7484fb4186481d6157e4dc9bd5f31f2fe"
+          }
+        },
+        {
+          "client_id": "816311600450-56fjjst54b3ae2p8cnj7pb0o33s42g48.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.shoeshop",
+            "certificate_hash": "bae707d081f1faa80ae360af4904aa9cb51ba3e1"
+          }
+        },
+        {
           "client_id": "816311600450-0gr1gi3bpacvpk03qnmpilo7sqqi8472.apps.googleusercontent.com",
           "client_type": 3
         }
